@@ -2,7 +2,9 @@ extern crate sysfs_gpio;
 
 use std::thread::sleep;
 use std::time::Duration;
-use sysfs_gpio::{Direction, Pin};
+use sysfs_gpio::Pin;
+
+pub const BLUE_PIN: u64 = 17;
 
 fn main() {
     let blue_pin = Pin::new(BLUE_PIN);
