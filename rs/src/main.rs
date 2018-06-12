@@ -53,6 +53,10 @@ fn flashy() {
     let yellow_pin = Pin::new(YELLOW_PIN);
     let red_pin = Pin::new(RED_PIN);
 
+    let blue_flag = 0b0001u32;
+    let yellow_flag = 0b0010u32;
+    let red_flag = 0b0100u32;
+
     let duration = 31;
     let mut count = 0;
 
@@ -61,13 +65,11 @@ fn flashy() {
             yellow_pin.with_exported(|| {
                 red_pin.with_exported(|| loop {
                     count = (count + 1) % 8;
-                    blue_pin.set_value(1).unwrap();
-                    yellow_pin.set_value(1).unwrap();
-                    red_pin.set_value(1).unwrap();
-                    sleep(Duration::from_millis(duration));
-                    blue_pin.set_value(0).unwrap();
-                    yellow_pin.set_value(0).unwrap();
-                    red_pin.set_value(0).unwrap();
+                    blue_pin.set_value((count & blue_flag > 0) as u8).unwrap();
+                    yellow_pin
+                        .set_value((count & yellow_flag > 0) as u8)
+                        .unwrap();
+                    red_pin.set_value((count & red_flag > 0) as u8).unwrap();
                     sleep(Duration::from_millis(duration));
                 })
             })
