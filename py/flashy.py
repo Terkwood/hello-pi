@@ -23,7 +23,7 @@ duration = slow
 count = 0
 
 while True:
-    count = count + 1 % 8
+    count = (count + 1) % 8
     GPIO.output(blue_pin, count & blue_flag > 0)
     GPIO.output(yellow_pin, count & yellow_flag > 0)
     GPIO.output(red_pin, count & red_flag > 0)

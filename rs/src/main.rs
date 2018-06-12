@@ -9,7 +9,7 @@ const YELLOW_PIN: u64 = 5;
 const RED_PIN: u64 = 26;
 
 fn main() {
-    blink3();
+    flashy();
 }
 
 fn blink() {
@@ -34,6 +34,33 @@ fn blink3() {
         .with_exported(|| {
             yellow_pin.with_exported(|| {
                 red_pin.with_exported(|| loop {
+                    blue_pin.set_value(1).unwrap();
+                    yellow_pin.set_value(1).unwrap();
+                    red_pin.set_value(1).unwrap();
+                    sleep(Duration::from_millis(duration));
+                    blue_pin.set_value(0).unwrap();
+                    yellow_pin.set_value(0).unwrap();
+                    red_pin.set_value(0).unwrap();
+                    sleep(Duration::from_millis(duration));
+                })
+            })
+        })
+        .unwrap();
+}
+
+fn flashy() {
+    let blue_pin = Pin::new(BLUE_PIN);
+    let yellow_pin = Pin::new(YELLOW_PIN);
+    let red_pin = Pin::new(RED_PIN);
+
+    let duration = 31;
+    let mut count = 0;
+
+    blue_pin
+        .with_exported(|| {
+            yellow_pin.with_exported(|| {
+                red_pin.with_exported(|| loop {
+                    count = (count + 1) % 8;
                     blue_pin.set_value(1).unwrap();
                     yellow_pin.set_value(1).unwrap();
                     red_pin.set_value(1).unwrap();
