@@ -1,0 +1,7 @@
+[package]
+name = "hello-rust-pi"
+version = "0.1.0"
+authors = ["Felix Terkhorn <<>>"]
+
+[dependencies]
+sysfs_gpio = "0.5"
