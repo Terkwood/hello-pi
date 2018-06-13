@@ -81,7 +81,6 @@ pub fn flashy() {
                         sleep(Duration::from_millis(duration));
                     }
                 })
-
             })
         })
         .unwrap();
