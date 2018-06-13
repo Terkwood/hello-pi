@@ -60,7 +60,9 @@ pub fn flashy() {
         yellow_pin.with_exported(|| {
             red_pin.with_exported(|| loop {
                 count = (count + 1) % 8;
-                blue_pin.set_value((count & blue_flag > 0) as u8).unwrap();
+                if let Err(_e) = blue_pin.set_value((count & blue_flag > 0) as u8) {
+                    println!("Couldn't set blue");
+                };
                 yellow_pin
                     .set_value((count & yellow_flag > 0) as u8)
                     .unwrap();
