@@ -5,5 +5,5 @@ pub mod lights;
 use std::env;
 
 fn main() {
-    lights::flashy()
+    lights::blink()
 }
