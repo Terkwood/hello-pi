@@ -8,7 +8,7 @@ pub const BLUE_PIN: u64 = 17;
 pub const YELLOW_PIN: u64 = 5;
 pub const RED_PIN: u64 = 26;
 
-fn blink() {
+pub fn blink() {
     let blue_pin = Pin::new(BLUE_PIN);
     blue_pin
         .with_exported(|| loop {

@@ -1,3 +1,3 @@
-pub fn main() {
-    flashy()
+fn main() {
+    lights::flashy()
 }
