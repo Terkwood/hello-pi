@@ -56,19 +56,22 @@ pub fn flashy() {
     let duration = 31;
     let mut count = 0;
 
-    blue_pin
-        .with_exported(|| {
-            yellow_pin.with_exported(|| {
-                red_pin.with_exported(|| loop {
-                    count = (count + 1) % 8;
-                    blue_pin.set_value((count & blue_flag > 0) as u8).unwrap();
-                    yellow_pin
-                        .set_value((count & yellow_flag > 0) as u8)
-                        .unwrap();
-                    red_pin.set_value((count & red_flag > 0) as u8).unwrap();
-                    sleep(Duration::from_millis(duration));
-                })
+    if let Err(_e) = blue_pin.with_exported(|| {
+        yellow_pin.with_exported(|| {
+            red_pin.with_exported(|| loop {
+                count = (count + 1) % 8;
+                blue_pin.set_value((count & blue_flag > 0) as u8).unwrap();
+                yellow_pin
+                    .set_value((count & yellow_flag > 0) as u8)
+                    .unwrap();
+                red_pin.set_value((count & red_flag > 0) as u8).unwrap();
+                sleep(Duration::from_millis(duration));
             })
         })
-        .unwrap();
+    }) {
+        println!("Failed - unexporting pins");
+        blue_pin.unexport().unwrap();
+        yellow_pin.unexport().unwrap();
+        red_pin.unexport().unwrap();
+    }
 }
