@@ -69,15 +69,17 @@ pub fn flashy() {
         .with_exported(|| {
             yellow_pin.with_exported(|| {
                 red_pin.with_exported(|| {
-                    blue_pin.set_direction(Direction::Out)?;
-                    yellow_pin.set_direction(Direction::Out)?;
-                    red_pin.set_direction(Direction::Out)?;
+                    blue_pin.set_direction(Direction::Out).unwrap();
+                    yellow_pin.set_direction(Direction::Out).unwrap();
+                    red_pin.set_direction(Direction::Out).unwrap();
 
                     loop {
                         count = (count + 1) % 8;
-                        blue_pin.set_value((count & blue_flag > 0) as u8)?;
-                        yellow_pin.set_value((count & yellow_flag > 0) as u8)?;
-                        red_pin.set_value((count & red_flag > 0) as u8)?;
+                        blue_pin.set_value((count & blue_flag > 0) as u8).unwrap();
+                        yellow_pin
+                            .set_value((count & yellow_flag > 0) as u8)
+                            .unwrap();
+                        red_pin.set_value((count & red_flag > 0) as u8).unwrap();
                         sleep(Duration::from_millis(duration));
                     }
                 })
