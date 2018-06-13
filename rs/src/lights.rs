@@ -2,7 +2,7 @@ extern crate sysfs_gpio;
 
 use std::thread::sleep;
 use std::time::Duration;
-use sysfs_gpio::Pin;
+use sysfs_gpio::{Direction, Pin};
 
 pub const BLUE_PIN: u64 = 17;
 pub const YELLOW_PIN: u64 = 5;
@@ -11,11 +11,14 @@ pub const RED_PIN: u64 = 26;
 pub fn blink() {
     let blue_pin = Pin::new(BLUE_PIN);
     blue_pin
-        .with_exported(|| loop {
-            blue_pin.set_value(0).unwrap();
-            sleep(Duration::from_millis(200));
-            blue_pin.set_value(1).unwrap();
-            sleep(Duration::from_millis(200));
+        .with_exported(|| {
+            blue_pin.set_direction(Direction::Out).unwrap();
+            loop {
+                blue_pin.set_value(0).unwrap();
+                sleep(Duration::from_millis(200));
+                blue_pin.set_value(1).unwrap();
+                sleep(Duration::from_millis(200));
+            }
         })
         .unwrap();
 }
