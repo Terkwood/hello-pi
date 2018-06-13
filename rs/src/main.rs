@@ -5,9 +5,9 @@ pub mod lights;
 use std::env;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    match args[1..].first() {
-        Some(program) => unimplemented!(),
-        None => lights::blink(),
+    match env::args().nth(1).as_ref().map(|s| s.as_str()) {
+        Some("blink3") => lights::blink3(),
+        Some("flashy") => lights::flashy(),
+        _ => lights::blink(),
     }
 }
