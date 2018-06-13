@@ -61,15 +61,15 @@ pub fn flashy() {
             yellow_pin.with_exported(|| {
                 red_pin.with_exported(|| loop {
                     count = (count + 1) % 8;
-                    if let Err(_e) = blue_pin.set_value((count & blue_flag > 0) as u8) {
+                    /*if let Err(_e) = blue_pin.set_value((count & blue_flag > 0) as u8) {
                         println!("Couldn't set blue");
+                    };*/
+                    if let Err(_e) = yellow_pin.set_value((count & yellow_flag > 0) as u8) {
+                        println!("Couldn't set yellow")
                     };
-                    /*if let Err(_e) = yellow_pin.set_value((count & yellow_flag > 0) as u8) {
-                    println!("Couldn't set yellow")
-                };*/
-                    if let Err(_e) = red_pin.set_value((count & red_flag > 0) as u8) {
+                    /*if let Err(_e) = red_pin.set_value((count & red_flag > 0) as u8) {
                         println!("Couldn't set red")
-                    };
+                    };*/
                     sleep(Duration::from_millis(duration));
                 })
             })
