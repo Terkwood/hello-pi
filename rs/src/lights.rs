@@ -74,8 +74,8 @@ pub fn flashy() {
         })
     }) {
         println!("Failed - unexporting pins");
-        blue_pin.unexport().unwrap();
-        yellow_pin.unexport().unwrap();
-        red_pin.unexport().unwrap();
+        blue_pin.unexport();
+        yellow_pin.unexport();
+        red_pin.unexport();
     }
 }
