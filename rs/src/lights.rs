@@ -32,15 +32,21 @@ pub fn blink3() {
     blue_pin
         .with_exported(|| {
             yellow_pin.with_exported(|| {
-                red_pin.with_exported(|| loop {
-                    blue_pin.set_value(1).unwrap();
-                    yellow_pin.set_value(1).unwrap();
-                    red_pin.set_value(1).unwrap();
-                    sleep(Duration::from_millis(duration));
-                    blue_pin.set_value(0).unwrap();
-                    yellow_pin.set_value(0).unwrap();
-                    red_pin.set_value(0).unwrap();
-                    sleep(Duration::from_millis(duration));
+                red_pin.with_exported(|| {
+                    blue_pin.set_direction(Direction::Out).unwrap();
+                    yellow_pin.set_direction(Direction::Out).unwrap();
+                    red_pin.set_direction(Direction::Out).unwrap();
+
+                    loop {
+                        blue_pin.set_value(1).unwrap();
+                        yellow_pin.set_value(1).unwrap();
+                        red_pin.set_value(1).unwrap();
+                        sleep(Duration::from_millis(duration));
+                        blue_pin.set_value(0).unwrap();
+                        yellow_pin.set_value(0).unwrap();
+                        red_pin.set_value(0).unwrap();
+                        sleep(Duration::from_millis(duration));
+                    }
                 })
             })
         })
@@ -62,18 +68,18 @@ pub fn flashy() {
     blue_pin
         .with_exported(|| {
             yellow_pin.with_exported(|| {
-                red_pin.with_exported(|| loop {
-                    count = (count + 1) % 8;
-                    if let Err(_e) = blue_pin.set_value((count & blue_flag > 0) as u8) {
-                        println!("Couldn't set blue");
-                    };
-                    if let Err(_e) = yellow_pin.set_value((count & yellow_flag > 0) as u8) {
-                        println!("Couldn't set yellow")
-                    };
-                    if let Err(_e) = red_pin.set_value((count & red_flag > 0) as u8) {
-                        println!("Couldn't set red")
-                    };
-                    sleep(Duration::from_millis(duration));
+                red_pin.with_exported(|| {
+                    blue_pin.set_direction(Direction::Out)?;
+                    yellow_pin.set_direction(Direction::Out)?;
+                    red_pin.set_direction(Direction::Out)?;
+
+                    loop {
+                        count = (count + 1) % 8;
+                        blue_pin.set_value((count & blue_flag > 0) as u8)?;
+                        yellow_pin.set_value((count & yellow_flag > 0) as u8)?;
+                        red_pin.set_value((count & red_flag > 0) as u8)?;
+                        sleep(Duration::from_millis(duration));
+                    }
                 })
             })
         })
