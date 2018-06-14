@@ -1,4 +1,4 @@
-# hello rust raspberry pi world!
+# Hello Rustberry Pi
 
 Three small examples which you can use to test GPIO
 on a Raspberry Pi.  
@@ -11,7 +11,7 @@ Yellow  5
 Red     26
 ```
 
-### Usage
+## Usage
 
 Blink pin 17
 
@@ -19,8 +19,12 @@ Blink pin 17
 
 Blink three pins at the same time
 
-`cargo run --example blink3`
+`cargo run blink3`
 
 Count from 0..8 in binary
 
-`cargo run --examply flashy`
+`cargo run flashy`
+
+Blink wildly after a given number of seconds
+
+`cargo run timer 10`
