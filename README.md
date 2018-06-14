@@ -20,4 +20,6 @@ echo out > /sys/class/gpio/gpio17/direction
 echo 1 > /sys/class/gpio/gpio17/value
 ```
 
+These scripts are available in the [helpers](helpers) directory.
+
 ![blink freely](img/flashy.jpg)
