@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-GPIO.setwarnings(False)
+GPIO.setwarnings(True)
 GPIO.setmode(GPIO.BCM)
 
 blue_pin = 18
@@ -16,7 +16,5 @@ GPIO.setup(button_pin, GPIO.IN)
 while True:
     if GPIO.input(button_pin):
         GPIO.output(blue_pin, False)
-        GPIO.output(yellow_pin, True)
     else:
         GPIO.output(blue_pin, True)
-        GPIO.output(yellow_pin, False)
