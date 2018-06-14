@@ -15,9 +15,9 @@ echo 5 > /sys/class/gpio/unexport
 Export pin 17 and give it some juice
 
 ```bash
-echo 17 > /sys/class/gpio/export
-echo out > /sys/class/gpio/gpio17/direction  # not in
-echo 1 > /sys/class/gpio/gpio17/value
+echo 17 > /sys/class/gpio/export && \
+  echo out > /sys/class/gpio/gpio17/direction && \  # not in
+  echo 1 > /sys/class/gpio/gpio17/value
 ```
 
 ![blink freely](img/flashy.jpg)
