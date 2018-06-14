@@ -19,8 +19,8 @@ Blink pin 17
 
 Blink three pins at the same time
 
-`cargo run --example blink3`
+`cargo run blink3`
 
 Count from 0..8 in binary
 
-`cargo run --examply flashy`
+`cargo run flashy`
