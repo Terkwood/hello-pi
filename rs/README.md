@@ -3,13 +3,19 @@
 Three small examples which you can use to test GPIO
 on a Raspberry Pi.  
 
-Please pay attention to the hardcoded pin numbers :-D
+PLEASE NOTE that the pin numbers are hardcoded to:
+
+```
+Blue    17
+Yellow  5
+Red     26
+```
 
 ### Usage
 
-Blink pin 5
+Blink pin 17
 
-`cargo run --example blink`
+`cargo run blink`
 
 Blink three pins at the same time
 
