@@ -101,6 +101,7 @@ pub fn flashy() {
 /// timer(duration, blink_fn)
 /// ```
 pub fn timer(duration: Duration, blink_fn: &Fn() -> ()) {
+    println!("See you in {} seconds\n... zzz ...\n. . . z z z . . . \n.   .   .     z  z z     .     .    .\n", duration.as_secs());
     sleep(duration);
     blink_fn()
 }
