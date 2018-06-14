@@ -87,3 +87,20 @@ pub fn flashy() {
         })
         .unwrap();
 }
+
+/// Flash some lights after a given amount of time
+///
+/// # Examples
+///
+/// ```
+/// use std::time::Duration;
+///
+/// let duration = Duration::from_seconds(5);
+/// let blink_fn = () -> blink()
+///
+/// timer(duration, blink_fn)
+/// ```
+pub fn timer(duration: Duration, blink_fn: &Fn() -> ()) {
+    sleep(duration);
+    blink_fn()
+}
