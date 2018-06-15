@@ -1,6 +1,8 @@
 extern crate sysfs_gpio;
 
+pub mod button;
 pub mod lights;
+pub mod on_export;
 
 use std::env;
 use std::str::FromStr;
@@ -10,6 +12,7 @@ const TIMER_DEFAULT_SECS: u64 = 5;
 
 fn main() {
     match env::args().nth(1).as_ref().map(|s| s.as_str()) {
+        Some("button") => button::run(),
         Some("blink3") => lights::blink3(),
         Some("flashy") => lights::flashy(),
         Some("timer") => {
@@ -22,6 +25,7 @@ fn main() {
             );
             lights::timer(secs, &lights::flashy)
         }
+
         _ => lights::blink(),
     }
 }
