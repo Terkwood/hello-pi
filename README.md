@@ -36,7 +36,7 @@ Linux GPIO subsystem documentation can be found at
 
 * [top level](https://www.kernel.org/doc/Documentation/gpio/)
 * [consumer interface for C programs](https://www.kernel.org/doc/Documentation/gpio/consumer.txt)
-* [legacy interface using /sys/class/gpio](https://www.kernel.org/doc/Documentation/gpio/consumer.txt)
+* [legacy interface using /sys/class/gpio](https://www.kernel.org/doc/Documentation/gpio/gpio-legacy.txt)
 
 ### Helper scripts
 
