@@ -46,7 +46,7 @@ space after killing your app, or to test setting the output
 value for a set of pins.
 
 _These scripts use the legacy GPIO interface_ found in `/sys/class/gpio`, so if you're making an effort to understand
-the C API for GPIO, please make sure that you refer to the [current C API](https://www.kernel.org/doc/Documentation/gpio/consumer.txt).
+the C API for GPIO, please make sure that you refer to the [updated documentation](https://www.kernel.org/doc/Documentation/gpio/consumer.txt).
 
 ## Thank You - Blink Freely!
 
