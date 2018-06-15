@@ -34,7 +34,12 @@ Please note that the GPIO pin numbers are hardcoded in
 
 ### Sleepy Thread Heuristic After First Export
 
-We found that we needed to give "the system" about 50 millis
-to catch up to the GPIO pins changing from an _unexported_
-to an _exported_ state.  To that end, we've defined the
-`on_export::wait()` function in [on_export.rs](src/on_export.rs).
+We found that we needed to
+give "the system" about 50 millis to catch up to the GPIO pins
+changing from an _unexported_ to an _exported_ state.  To that
+end, we've defined the `on_export::wait()` function.  We needed
+to call this prior to setting directions on individual pins.
+
+The python GPIO lib doesn't seem to have this problem, but
+we surmise that it's doing some additional work to make
+setting pin directions painless.
