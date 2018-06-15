@@ -5,7 +5,7 @@ use std::time::Duration;
 use sysfs_gpio::{Direction, Pin};
 
 pub fn run() {
-    const SLEEP_HEURISTIC_MILLIS: u64 = 1;
+    const SLEEP_HEURISTIC_MILLIS: u64 = 10;
 
     let led_pin = Pin::new(18);
     let button_pin = Pin::new(25);
