@@ -2,6 +2,7 @@ extern crate sysfs_gpio;
 
 pub mod button;
 pub mod lights;
+pub mod on_export;
 
 use std::env;
 use std::str::FromStr;

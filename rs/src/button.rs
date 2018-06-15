@@ -1,5 +1,6 @@
 extern crate sysfs_gpio;
 
+use on_export;
 use sysfs_gpio::{Direction, Pin};
 
 pub fn run() {
@@ -8,6 +9,7 @@ pub fn run() {
     led_pin
         .with_exported(|| {
             button_pin.with_exported(|| {
+                on_export::wait();
                 led_pin.set_direction(Direction::Out).unwrap();
                 button_pin.set_direction(Direction::In).unwrap();
                 loop {
