@@ -12,8 +12,8 @@ pub fn run() {
                 button_pin.set_direction(Direction::In).unwrap();
                 loop {
                     match button_pin.get_value() {
-                        Ok(1) => led_pin.set_value(0).unwrap(),
-                        _ => led_pin.set_value(1).unwrap(),
+                        Ok(1) => led_pin.set_value(1).unwrap(),
+                        _ => led_pin.set_value(0).unwrap(),
                     }
                 }
             })
