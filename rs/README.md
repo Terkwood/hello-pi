@@ -3,7 +3,11 @@
 Three small examples which you can use to test GPIO
 on a Raspberry Pi.  
 
-PLEASE NOTE that the pin numbers are hardcoded in
+This work makes use of the [rust-sysfs-gpio](https://github.com/rust-embedded/rust-sysfs-gpio) library.
+
+## Caveat Emptor: Hardcoded Pin Numbers
+
+Please note that the GPIO pin numbers are hardcoded in
 [lights.rs](src/lights.rs) and [button.rs](src/button.rs).
 
 ## Usage
