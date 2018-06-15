@@ -18,15 +18,17 @@ You can [download Fritzing here](http://fritzing.org/home/).
 
 ## Learnings
 
-We learned that the simple push button included in basic 
-Raspberry Pi kits has legs that are bent by default.  This
-is helpful for soldering the buttons onto actual build,
-but it made it difficult to get the button pushed into the
-bread board.
+Basic push buttons have legs which are bent by default.
+This is helpful for soldering the buttons onto actual build,
+but makes it difficult to get the button pushed into the
+breadboard.
 
 We used a pair of pliers to straighten out the pins on the
 button, and made sure that we pushed the button all the
-way down into the bread board.
+way down into the bread board.  This allowed us to establish
+connectivity with the button after an initial period of failure.
+
+![Before straightening out button legs](img/bent_legs.jpg)
 
 ### Linux GPIO hints
 
