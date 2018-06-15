@@ -1,5 +1,6 @@
 extern crate sysfs_gpio;
 
+use on_export;
 use std::thread::sleep;
 use std::time::Duration;
 use sysfs_gpio::{Direction, Pin};
@@ -12,6 +13,9 @@ pub fn blink() {
     let blue_pin = Pin::new(BLUE_PIN);
     blue_pin
         .with_exported(|| {
+            // give the system a little time
+            // to catch up to export
+            on_export::wait();
             blue_pin.set_direction(Direction::Out).unwrap();
             loop {
                 blue_pin.set_value(0).unwrap();
@@ -33,6 +37,7 @@ pub fn blink3() {
         .with_exported(|| {
             yellow_pin.with_exported(|| {
                 red_pin.with_exported(|| {
+                    on_export::wait();
                     blue_pin.set_direction(Direction::Out).unwrap();
                     yellow_pin.set_direction(Direction::Out).unwrap();
                     red_pin.set_direction(Direction::Out).unwrap();
@@ -69,6 +74,7 @@ pub fn flashy() {
         .with_exported(|| {
             yellow_pin.with_exported(|| {
                 red_pin.with_exported(|| {
+                    on_export::wait();
                     blue_pin.set_direction(Direction::Out).unwrap();
                     yellow_pin.set_direction(Direction::Out).unwrap();
                     red_pin.set_direction(Direction::Out).unwrap();
