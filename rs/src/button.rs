@@ -11,9 +11,10 @@ pub fn run() {
                 led_pin.set_direction(Direction::Out).unwrap();
                 button_pin.set_direction(Direction::In).unwrap();
                 loop {
-                    match button_pin.get_value() {
-                        Ok(1) => led_pin.set_value(1).unwrap(),
-                        _ => led_pin.set_value(0).unwrap(),
+                    if let Ok(1) = button_pin.get_value() {
+                        led_pin.set_value(1).unwrap()
+                    } else {
+                        led_pin.set_value(0).unwrap()
                     }
                 }
             })
