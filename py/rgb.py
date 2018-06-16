@@ -17,9 +17,12 @@ def reroll():
     change_color(rgb_rand(), rgb_rand(), rgb_rand())
     
 def pulse(r = True, g = True, b = True):
-    red_led.pulse()
-    green_led.pulse()
-    blue_led.pulse()
+    if r:
+        red_led.pulse()
+    if g:
+        green_led.pulse()
+    if b:
+        blue_led.pulse()
 
 def state_change():
     global state
