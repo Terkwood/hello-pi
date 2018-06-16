@@ -42,7 +42,7 @@ def state_change():
         r = state & 1 > 0
         g = state & 2 > 0
         b = state & 4 > 0
-        print("R {} G {} B {}".format(r, g, b))
+        print("Red   {}\tGreen {}\tBlue  {}".format(r, g, b))
         pulse(r, g, b)
 
 button.when_pressed = state_change
