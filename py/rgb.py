@@ -11,25 +11,25 @@ blue_led = PWMLED(20)
 
 button = Button(25)
 
-rand_mode = False
+state = 0
 
 def reroll():
     change_color(rgb_rand(), rgb_rand(), rgb_rand())
     
-def pulse():
+def pulse(r = True, g = True, b = True):
     red_led.pulse()
     green_led.pulse()
     blue_led.pulse()
 
 def state_change():
-    global rand_mode
-    rand_mode = not rand_mode
-    print(rand_mode)
-    if rand_mode:
+    global state
+    state = (state+1)%8
+    print(state)
+    if not state:
         reroll()
     else:
         time.sleep(0.1)
-        pulse()
+        pulse(r = state & 1 > 0, g = state & 2 > 0, b = state & 4 > 0)
 
 button.when_pressed = state_change
 
@@ -48,6 +48,6 @@ def rgb_rand():
 pulse()
 
 while True:
-    if rand_mode:
+    if not state:
         time.sleep(0.1)
         reroll()
