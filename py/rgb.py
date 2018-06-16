@@ -1,4 +1,5 @@
 from gpiozero import PWMLED
+from gpiozero import Button
 import random
 import time
 
@@ -7,6 +8,8 @@ SLEEP_SECS = 0.333
 red_led = PWMLED(12)
 green_led = PWMLED(16)
 blue_led = PWMLED(20)
+
+button = Button(25)
 
 def bounded(n):
     return min(max(n, 0.0), 1.0)
