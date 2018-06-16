@@ -1,4 +1,4 @@
-# Hello Raspberry Pi 
+# Hello Raspberry Pi
 
 Examples which demonstrate the use of Raspberry Pi and GPIO.
 
@@ -48,6 +48,6 @@ value for a set of pins.
 _These scripts use the legacy GPIO interface_ found in `/sys/class/gpio`, so if you're making an effort to understand
 the C API for GPIO, please make sure that you refer to the [updated documentation](https://www.kernel.org/doc/Documentation/gpio/consumer.txt).
 
-## Thank You - Blink Freely!
+## Thank You - Blink Freely
 
 ![blink freely](img/flashy.jpg)
