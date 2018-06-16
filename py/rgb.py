@@ -19,10 +19,16 @@ def reroll():
 def pulse(r = True, g = True, b = True):
     if r:
         red_led.pulse()
+    else:
+        red_led.off()
     if g:
         green_led.pulse()
+    else:
+        green_led.off()
     if b:
         blue_led.pulse()
+    else:
+        blue_led.off()
 
 def state_change():
     global state
