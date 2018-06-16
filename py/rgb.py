@@ -13,6 +13,9 @@ button = Button(25)
 
 def reroll():
     change_color(rgb_rand(), rgb_rand(), rgb_rand())
+    red_led.pulse()
+    green_led.pulse()
+    blue_led.pulse()
 
 button.when_pressed = reroll
 
@@ -28,9 +31,7 @@ def change_color(r, g, b):
 def rgb_rand():
     return random.uniform(0.0, 0.5)
 
-red_led.pulse()
-green_led.pulse()
-blue_led.pulse()
+reroll()
 
 while True:
     True
