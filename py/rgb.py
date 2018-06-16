@@ -35,10 +35,15 @@ def state_change():
     state = (state+1)%8
     print(state)
     if not state:
+        print("Go Wild")
         reroll()
     else:
         time.sleep(0.1)
-        pulse(r = state & 1 > 0, g = state & 2 > 0, b = state & 4 > 0)
+        r = state & 1 > 0
+        g = state & 2 > 0
+        b = state & 4 > 0
+        print("R %d G %d B %d", r, g, b)
+        pulse(r, g, b)
 
 button.when_pressed = state_change
 
