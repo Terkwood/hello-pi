@@ -11,13 +11,10 @@ blue_led = PWMLED(20)
 
 button = Button(25)
 
-active = False
+def reroll():
+    change_color(rgb_rand(), rgb_rand(), rgb_rand())
 
-def toggle():
-    global active
-    active = not active
-
-button.when_pressed = toggle
+button.when_pressed = reroll
 
 def bounded(n):
     return min(max(n, 0.0), 1.0)
@@ -31,7 +28,9 @@ def change_color(r, g, b):
 def rgb_rand():
     return random.uniform(0.0, 0.5)
 
+red_led.pulse()
+green_led.pulse()
+blue_led.pulse()
+
 while True:
-    if active:
-        change_color(rgb_rand(), rgb_rand(), rgb_rand())
-    time.sleep(SLEEP_SECS)
+    True
