@@ -17,12 +17,10 @@ def reroll():
     change_color(rgb_rand(), rgb_rand(), rgb_rand())
     
 def pulse():
-    red_led.off()
     red_led.pulse()
-    green_led.off()
     green_led.pulse()
-    blue_led.off()
     blue_led.pulse()
+
 def state_change():
     global rand_mode
     rand_mode = not rand_mode
