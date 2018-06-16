@@ -12,7 +12,7 @@ example:
 ![button configuration](doc/button.jpg)
 
 There are Fritzing diagrams available for these examples
-in the [docs folder](docs).
+in the [doc folder](doc).
 
 You can [download Fritzing here](http://fritzing.org/home/).
 
