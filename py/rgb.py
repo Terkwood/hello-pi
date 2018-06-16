@@ -33,9 +33,8 @@ def pulse(r = True, g = True, b = True):
 def state_change():
     global state
     state = (state+1)%8
-    print(state)
     if not state:
-        print("Go Wild")
+        print("\nG  O      W  I  L  D\n")
         reroll()
     else:
         time.sleep(0.1)
