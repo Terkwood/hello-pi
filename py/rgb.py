@@ -11,6 +11,14 @@ blue_led = PWMLED(20)
 
 button = Button(25)
 
+active = False
+
+def toggle():
+    global active
+    active = not active
+
+button.when_pressed = toggle
+
 def bounded(n):
     return min(max(n, 0.0), 1.0)
 
@@ -24,5 +32,6 @@ def rgb_rand():
     return random.uniform(0.0, 0.5)
 
 while True:
-    change_color(rgb_rand(), rgb_rand(), rgb_rand())
+    if active:
+        change_color(rgb_rand(), rgb_rand(), rgb_rand())
     time.sleep(SLEEP_SECS)
