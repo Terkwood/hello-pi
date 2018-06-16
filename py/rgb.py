@@ -1,3 +1,14 @@
+# Assumed setup:
+# - Raspberry Pi 3 B+
+# - Button on GPIO 25
+# - Common cathode RGB LED
+#       First lead: RED, GPIO 12
+#       Second lead: CATHODE, GND
+#       Third lead: GREEN, GPIO 16
+#       Fourth lead: BLUE, GPIO 20
+
+# Also see the diagram rgb.jpg in the docs folder.
+
 from gpiozero import PWMLED
 from gpiozero import Button
 import random
