@@ -18,6 +18,8 @@ You can [download Fritzing here](http://fritzing.org/home/).
 
 ## Learnings
 
+### Push buttons
+
 Basic push buttons have legs which are bent by default.
 This is helpful for soldering the buttons onto actual build,
 but makes it difficult to get the button pushed into the
@@ -29,6 +31,11 @@ way down into the bread board.  This allowed us to establish
 connectivity with the button after an initial period of failure.
 
 ![Before straightening out button legs](img/bent_legs.jpg)
+
+### Camera install
+
+* https://www.rs-online.com/designspark/raspberry-pi-camera-setup
+* https://thepihut.com/blogs/raspberry-pi-tutorials/16021420-how-to-install-use-the-raspberry-pi-camera
 
 ## Linux GPIO docs
 
