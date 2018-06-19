@@ -1,0 +1,94 @@
+# imgui-rs: Rust bindings for ImGui
+
+**Still fairly experimental!**
+
+Minimum Rust version: 1.20
+
+[![Build Status](https://travis-ci.org/Gekkio/imgui-rs.svg?branch=master)](https://travis-ci.org/Gekkio/imgui-rs)
+[![Latest release on crates.io](https://meritbadge.herokuapp.com/imgui)](https://crates.io/crates/imgui)
+[![Documentation on docs.rs](https://docs.rs/imgui/badge.svg)](https://docs.rs/imgui)
+
+![Hello world](hello_world.png)
+
+```rust
+ui.window(im_str!("Hello world"))
+    .size((300.0, 100.0), ImGuiCond::FirstUseEver)
+    .build(|| {
+        ui.text(im_str!("Hello world!"));
+        ui.text(im_str!("こんにちは世界！"));
+        ui.text(im_str!("This...is...imgui-rs!"));
+        ui.separator();
+        let mouse_pos = ui.imgui().mouse_pos();
+        ui.text(im_str!("Mouse Position: ({:.1},{:.1})", mouse_pos.0, mouse_pos.1));
+    })
+```
+
+## Currently implemented things
+
+* Low-level API (imgui-sys)
+* Renderer for easy integration with [Glium](https://github.com/tomaka/glium) projects (optional)
+* Parts of high-level API
+* Not horrible way of defining and passing null-terminated UTF-8 to ImGui.
+  The macro `im_str!` needs to be used most of the time. For more
+  information and justification for this design, please see [issue #7](https://github.com/Gekkio/imgui-rs/issues/7)
+* Parts of imgui\_demo.cpp reimplemented in Rust as an API usage example (examples/test\_window\_impl.rs)
+
+## Important but unimplemented things
+
+* Documentation (rustdoc)
+* Support passing a custom Program to Glium renderer (e.g. from a shader cache, or custom shader)
+
+## Core design questions and current choices
+
+* Closures VS begin/end pairs (current choice: closures)
+* Mutable references VS return values (current choice: mutable references)
+* Passing around Ui&lt;'ui&gt; VS passing around &amp;'ui Ui (current choice: Ui&lt;'ui&gt;)
+* Splitting the API to smaller pieces VS all draw calls in Ui (current choice: all draw calls in Ui)
+* Builder pattern for optional arguments VS something else (current choice: builder)
+* Mutation functions in builders VS self-consuming functions in builders (current choice: self-consuming)
+
+## Compiling and running the demos
+
+Examples are under the imgui-examples directory.
+
+    git clone https://github.com/Gekkio/imgui-rs
+    cd imgui-rs
+    git submodule update --init --recursive
+    cd imgui-examples
+    cargo test
+
+    cargo run --example hello_world
+    cargo run --example test_window
+    cargo run --example test_window_impl
+
+Note to Windows users:  You will need to use the *MSVC ABI* version of the Rust compiler along
+with its associated [dependencies](https://www.rust-lang.org/en-US/downloads.html#win-foot) to
+build this libary and run the examples.
+
+## How to contribute
+
+1. Change or add something
+2. Run rustfmt to guarantee code style conformance
+
+        cargo install rustfmt
+        cargo fmt -- --write-mode=overwrite
+
+3. Open a pull request in Github
+
+## License
+
+Licensed under either of
+
+ * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+Uses [ImGui](https://github.com/ocornut/imgui) and [cimgui](https://github.com/Extrawurst/cimgui).
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally
+submitted for inclusion in the work by you, as defined in the Apache-2.0
+license, shall be dual licensed as above, without any additional terms or
+conditions.
