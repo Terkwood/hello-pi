@@ -1,11 +1,11 @@
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
-use model::PiOutput;
+use model::WritePwm;
 use pins::*;
 use std::collections::HashMap;
 
-pub fn run(output_r: channel::Receiver<PiOutput>) {
+pub fn run(output_r: channel::Receiver<WritePwm>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let pi = wiringpi::setup_gpio();
     let pins = {
@@ -19,10 +19,9 @@ pub fn run(output_r: channel::Receiver<PiOutput>) {
     };
     loop {
         match output_r.recv() {
-            Some(PiOutput::Led { pin, value }) => if let Some(p) = pins.get(&pin) {
+            Some(WritePwm { pin, value }) => if let Some(p) = pins.get(&pin) {
                 p.pwm_write(value);
             },
-            Some(PiOutput::Blink { pin: _, millis: _ }) => {}
             None => {}
         }
     }

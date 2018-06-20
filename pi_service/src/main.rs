@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
@@ -6,7 +5,7 @@ mod model;
 mod pi_receiver;
 mod pins;
 
-use model::PiOutput;
+use model::WritePwm;
 use pins::*;
 use std::thread;
 use std::time::Duration;
@@ -17,29 +16,29 @@ fn main() {
     thread::spawn(move || pi_receiver::run(output_r));
 
     // clear
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: RED_GPIO,
         value: 0,
     });
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: GREEN_GPIO,
         value: 0,
     });
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: BLUE_GPIO,
         value: 0,
     });
 
     // show a pleasant green
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: RED_GPIO,
         value: from_color(47),
     });
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: GREEN_GPIO,
         value: from_color(181),
     });
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: BLUE_GPIO,
         value: from_color(47),
     });
@@ -47,7 +46,7 @@ fn main() {
     thread::sleep(Duration::from_secs(5));
 
     // clear green
-    output_s.send(PiOutput::Led {
+    output_s.send(WritePwm {
         pin: GREEN_GPIO,
         value: 0,
     });
@@ -55,11 +54,11 @@ fn main() {
     loop {
         for i in 0..256 {
             let v = from_color(i);
-            output_s.send(PiOutput::Led {
+            output_s.send(WritePwm {
                 pin: RED_GPIO,
                 value: v,
             });
-            output_s.send(PiOutput::Led {
+            output_s.send(WritePwm {
                 pin: BLUE_GPIO,
                 value: v,
             });
@@ -70,11 +69,11 @@ fn main() {
 
         for i in 0..256 {
             let v = 100 - from_color(i);
-            output_s.send(PiOutput::Led {
+            output_s.send(WritePwm {
                 pin: RED_GPIO,
                 value: v,
             });
-            output_s.send(PiOutput::Led {
+            output_s.send(WritePwm {
                 pin: BLUE_GPIO,
                 value: v,
             });
