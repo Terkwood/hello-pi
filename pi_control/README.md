@@ -1,10 +1,10 @@
 # pi_control
 
-Raspberry Pi control board using Dear ImgUi.
+Raspberry Pi control board using Dear ImgUi.  Currently under construction.
 
 ![Pick a Color](doc/color_picker.jpg)
 
-## Cloning, Building, and Running
+## Cloning Submodules
 
 After you clone this repo, you need to initialize `imgui-rs`
 git submodule:
