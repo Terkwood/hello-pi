@@ -11,5 +11,5 @@ pub fn fetch_an_integer() -> redis::RedisResult<isize> {
     // read back the key and return it.  Because the return value
     // from the function is a result for integer this will automatically
     // convert into one.
-    con.get("my_key")
+    con.get("test")
 }
