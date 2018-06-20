@@ -3,7 +3,7 @@ extern crate rppal;
 use std::thread;
 use std::time::Duration;
 
-use rppal::gpio::{Gpio, Mode, Level};
+use rppal::gpio::{Gpio, Level, Mode};
 use rppal::system::DeviceInfo;
 
 // The GPIO module uses BCM pin numbering. BCM GPIO 18 is located on physical pin 12.
@@ -11,7 +11,11 @@ const GPIO_LED: u8 = 12;
 
 fn main() {
     let device_info = DeviceInfo::new().unwrap();
-    println!("Model: {} (SoC: {})", device_info.model(), device_info.soc());
+    println!(
+        "Model: {} (SoC: {})",
+        device_info.model(),
+        device_info.soc()
+    );
 
     let mut gpio = Gpio::new().unwrap();
     gpio.set_mode(GPIO_LED, Mode::Output);
