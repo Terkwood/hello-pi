@@ -15,16 +15,18 @@ fn main() {
     loop {
         // Duty cycle ranges from 0 to 100
         for i in 0..256 {
-            let v = i as f32 / 255.0 * 100.0;
-            red_led.pwm_write(v as i32);
+            let v = (i as f32 / 255.0 * 100.0) as i32;
+            red_led.pwm_write(v);
+            blue_led.pwm_write(v);
             thread::sleep(Duration::from_millis(1));
         }
 
         thread::sleep(Duration::from_millis(10));
 
         for i in 0..256 {
-            let v = i as f32 / 255.0 * 100.0;
-            red_led.pwm_write(100 - v as i32);
+            let v = 100 - (i as f32 / 255.0 * 100.0) as i32;
+            red_led.pwm_write(v);
+            blue_led.pwm_write(v);
             thread::sleep(Duration::from_millis(1));
         }
 
