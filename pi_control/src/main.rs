@@ -33,7 +33,6 @@ use imgui::*;
 mod support_gfx;
 
 struct State {
-    show_app_about: bool,
     no_titlebar: bool,
     no_resize: bool,
     no_move: bool,
@@ -47,13 +46,12 @@ struct State {
 impl Default for State {
     fn default() -> Self {
         State {
-            show_app_about: false,
             no_titlebar: false,
             no_resize: false,
             no_move: false,
             no_scrollbar: false,
             no_collapse: false,
-            no_menu: false,
+            no_menu: true,
             no_close: false,
             color_edit: ColorEditState::default(),
         }
@@ -72,7 +70,7 @@ struct ColorEditState {
 impl Default for ColorEditState {
     fn default() -> Self {
         ColorEditState {
-            color: [0.0 / 255.0, 255.0 / 255.0, 94.0 / 255.0, 255.0 / 255.0],
+            color: [47.0 / 255.0, 181.0 / 255.0, 47.0 / 255.0, 255.0 / 255.0],
             alpha: true,
             alpha_bar: true,
             side_preview: true,
@@ -95,21 +93,6 @@ fn main() {
 }
 
 fn show_test_window(ui: &Ui, state: &mut State, opened: &mut bool) {
-    if state.show_app_about {
-        ui.window(im_str!("About ImGui"))
-            .always_auto_resize(true)
-            .opened(&mut state.show_app_about)
-            .build(|| {
-                ui.text(format!("dear imgui, {}", imgui::get_version()));
-                ui.separator();
-                ui.text("By Omar Cornut and all github contributors.");
-                ui.text(
-                    "ImGui is licensed under the MIT License, see LICENSE for more \
-                     information.",
-                );
-            });
-    }
-
     let mut window = ui
         .window(im_str!("Raspberry Pi"))
         .title_bar(!state.no_titlebar)
@@ -123,16 +106,6 @@ fn show_test_window(ui: &Ui, state: &mut State, opened: &mut bool) {
         window = window.opened(opened)
     }
     window.build(|| {
-        ui.push_item_width(-140.0);
-        ui.menu_bar(|| {
-            ui.menu(im_str!("Help")).build(|| {
-                ui.menu_item(im_str!("About ImGui"))
-                    .selected(&mut state.show_app_about)
-                    .build();
-            });
-        });
-        ui.spacing();
-
         let s = &mut state.color_edit;
         let misc_flags = {
             let mut f = ImGuiColorEditFlags::empty();
@@ -142,7 +115,7 @@ fn show_test_window(ui: &Ui, state: &mut State, opened: &mut bool) {
         ui.text(im_str!("Pick a color"));
 
         let mut b = ui
-            .color_picker(im_str!("MyColor##4"), &mut s.color)
+            .color_picker(im_str!("Current##4"), &mut s.color)
             .flags(misc_flags)
             .alpha(s.alpha)
             .alpha_bar(s.alpha_bar)

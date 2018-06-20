@@ -11,8 +11,6 @@ git submodule:
 git submodule update --init --recursive
 ```
 
-We haven't bothered getting this to cross compile.
-
 ## Acknowledgements
 
 This project makes use of [Dear ImGui](https://github.com/ocornut/imgui).  Thank you.
