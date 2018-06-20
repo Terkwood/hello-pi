@@ -11,6 +11,9 @@ fn main() {
     let green_led = pi.soft_pwm_pin(16);
     let blue_led = pi.soft_pwm_pin(20);
 
+    red_led.pwm_write(0);
+    green_led.pwm_write(0);
+    blue_led.pwm_write(0);
 
     // show a pleasant green
     red_led.pwm_write(pwm_value(47));
@@ -20,7 +23,6 @@ fn main() {
     thread::sleep(Duration::from_secs(5));
 
     green_led.pwm_write(0);
-    thread::sleep(Duration::from_millis(1));
 
     loop {
         // Duty cycle ranges from 0 to 100
