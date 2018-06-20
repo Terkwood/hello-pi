@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Felix Terkhorn <<>>"]
 
 [dependencies]
+redis = "0.8.0"
 rppal = "0.6"
 sysfs_gpio = "0.5"
