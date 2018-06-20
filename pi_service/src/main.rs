@@ -27,7 +27,6 @@ fn main() {
     green_led.pwm_write(0);
 
     loop {
-        // Duty cycle ranges from 0 to 100
         for i in 0..256 {
             let v = duty_value(i);
             red_led.pwm_write(v);
@@ -47,6 +46,7 @@ fn main() {
         thread::sleep(Duration::from_millis(10));
     }
 
+    // Duty cycle ranges from 0 to 100
     fn duty_value(color: i32) -> i32 {
         (color as f32 / 255.0 * 100.0) as i32
     }
