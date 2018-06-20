@@ -2,6 +2,8 @@
 
 Raspberry Pi control board using Dear ImgUi.
 
+![Pick a Color](doc/color_picker.jpg)
+
 ## Cloning, Building, and Running
 
 After you clone this repo, you need to initialize `imgui-rs`
