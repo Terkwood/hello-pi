@@ -22,7 +22,7 @@ fn main() {
 
     // Switch `alice_out` (pin 12) back to software PWM mode
     alice = alice_out.into_soft_pwm();
-    alice.pwm_write(50);
+    alice.pwm_write(1024);
 
     thread::sleep(Duration::from_millis(2000));
 
