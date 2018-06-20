@@ -1,3 +1,0 @@
-[submodule "pi_control/imgui-rs"]
-	path = pi_control/imgui-rs
-	url = git@github.com:Gekkio/imgui-rs.git
