@@ -20,6 +20,8 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+#[macro_use]
+extern crate crossbeam_channel;
 extern crate gfx;
 extern crate gfx_window_glutin;
 extern crate glutin;
@@ -30,6 +32,7 @@ extern crate imgui_sys;
 
 use imgui::*;
 
+mod publish;
 mod support_gfx;
 
 struct State {
