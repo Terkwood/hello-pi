@@ -5,4 +5,4 @@ authors = ["Terkwood <metaterkhorn@gmail.com>"]
 
 [dependencies]
 crossbeam-channel = "0.2"
-rppal = "0.6.0"
+wiringpi = "0.2"

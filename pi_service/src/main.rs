@@ -1,27 +1,24 @@
-extern crate rppal;
+extern crate wiringpi;
 
-use std::thread;
-use std::time::Duration;
-
-use rppal::gpio::{Gpio, Level, Mode};
-use rppal::system::DeviceInfo;
-
-// The GPIO module uses BCM pin numbering. BCM GPIO 18 is located on physical pin 12.
-const GPIO_LED: u8 = 12;
+use wiringpi::pin::Value::{High, Low};
+use std::{thread, time};
 
 fn main() {
-    let device_info = DeviceInfo::new().unwrap();
-    println!(
-        "Model: {} (SoC: {})",
-        device_info.model(),
-        device_info.soc()
-    );
+    //Setup WiringPi with its own pin numbering order
+    let pi = wiringpi::setup();
 
-    let mut gpio = Gpio::new().unwrap();
-    gpio.set_mode(GPIO_LED, Mode::Output);
+    //Use WiringPi pin 0 as output
+    let pin = pi.output_pin(12);
 
-    // Blink an LED attached to the pin on and off
-    gpio.write(GPIO_LED, Level::High);
-    thread::sleep(Duration::from_millis(500));
-    gpio.write(GPIO_LED, Level::Low);
+    let interval = time::Duration::from_millis(1000);
+
+    loop {
+        //Set pin 0 to high and wait one second
+        pin.digital_write(High);
+        thread::sleep(interval);
+
+        //Set pin 0 to low and wait one second
+        pin.digital_write(Low);
+        thread::sleep(interval);
+    }
 }
