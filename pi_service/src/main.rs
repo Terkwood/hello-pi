@@ -1,9 +1,18 @@
+#[macro_use]
+extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
 use std::thread;
 use std::time::Duration;
 
+enum PiOutput {
+    Led { pin: u32, value: u32 },
+    Blink { pin: u32, millis: u32 },
+}
+
 fn main() {
+    //let (output_s, output_r) = channel::bounded(1);
+
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let pi = wiringpi::setup_gpio();
 
