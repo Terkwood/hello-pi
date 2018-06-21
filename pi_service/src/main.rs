@@ -7,6 +7,10 @@ mod pi_receiver;
 mod pins;
 mod redis_subscribe;
 
+use model::WritePwm;
+use pins::*;
+use std::thread;
+use std::time::Duration;
 
 fn main() {
     let (output_s, output_r) = channel::bounded(1);
