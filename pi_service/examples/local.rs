@@ -1,9 +1,10 @@
 extern crate crossbeam_channel as channel;
+extern crate pi_service;
 extern crate redis;
 extern crate wiringpi;
-extern crate pi_service;
 
 use pi_service::model::WritePwm;
+use pi_service::pi_receiver;
 use pi_service::pins::*;
 use std::thread;
 use std::time::Duration;
