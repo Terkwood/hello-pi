@@ -1,5 +1,7 @@
 extern crate nom;
 
+use std::num;
+
 #[derive(Debug, PartialEq)]
 pub struct Color {
     pub red: u8,
@@ -7,7 +9,7 @@ pub struct Color {
     pub blue: u8,
 }
 
-fn from_hex(input: &str) -> Result<u8, std::num::ParseIntError> {
+fn from_hex(input: &str) -> Result<u8, num::ParseIntError> {
     u8::from_str_radix(input, 16)
 }
 

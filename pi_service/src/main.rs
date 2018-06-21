@@ -1,5 +1,3 @@
-#![feature(extern_prelude)] // for parse_rgb
-
 extern crate crossbeam_channel as channel;
 #[macro_use]
 extern crate nom;
