@@ -90,7 +90,7 @@ fn main() {
     let mut state = State::default();
 
     support_gfx::run("RGB LEDs on Raspberry Pi".to_owned(), CLEAR_COLOR, |ui| {
-        let (redis_s, redis_r) = channel::bounded(5);
+        let (redis_s, _redis_r) = channel::bounded(5);
         let orig_rgb_widget_color = &state.color_edit.color.clone()[..];
 
         let mut open = true;
