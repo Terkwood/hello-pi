@@ -1,4 +1,6 @@
 extern crate crossbeam_channel as channel;
+#[macro_use]
+extern crate nom;
 extern crate redis;
 extern crate wiringpi;
 
@@ -7,10 +9,7 @@ mod model;
 mod pins;
 mod redis_subscribe;
 
-use model::WritePwm;
-use pins::*;
 use std::thread;
-use std::time::Duration;
 
 fn main() {
     let (gpio_s, gpio_r) = channel::bounded(5);

@@ -8,7 +8,7 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
     let client = Client::open("redis://127.0.0.1/").unwrap();
     let mut pub_sub: PubSub = client.get_pubsub().unwrap();
 
-    pub_sub.subscribe("pi_service").unwrap();
+    pub_sub.subscribe("pi_service_rgb").unwrap();
     loop {
         let msg = pub_sub.get_message();
         match msg {
