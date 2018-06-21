@@ -8,3 +8,6 @@ crossbeam-channel = "0.2"
 nom = "4.0.0"
 redis = "0.8.0"
 wiringpi = "0.2"
+
+[redis]
+auth = "NOT_SET"
