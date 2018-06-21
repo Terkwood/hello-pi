@@ -4,7 +4,7 @@ extern crate redis;
 extern crate wiringpi;
 
 use pi_service::model::WritePwm;
-use pi_service::pi_receiver;
+use pi_service::gpio_receiver;
 use pi_service::pins::*;
 use std::thread;
 use std::time::Duration;
@@ -12,7 +12,7 @@ use std::time::Duration;
 fn main() {
     let (output_s, output_r) = channel::bounded(1);
 
-    thread::spawn(move || pi_receiver::run(output_r));
+    thread::spawn(move || gpio_receiver::run(output_r));
 
     // clear
     output_s.send(WritePwm {
