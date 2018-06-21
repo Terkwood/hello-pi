@@ -37,6 +37,14 @@ CAfile = /usr/local/etc/stunnel/redis-server.crt
 verify = 4
 ```
 
+## Examples
+
+```bash
+cargo run --example redis   # Write and read the epoch time from redis
+cargo run --example simple  # Basic usage of wiringpi bindings, no message passing
+cargo run --example local   # Use local message passing to drive the RGB LED
+```
+
 ## Acknowledgements
 
 [rust-wiringpi](https://github.com/Ogeon/rust-wiringpi/blob/master/src/bindings.rs) was extremely helpful here.  Thank you.
