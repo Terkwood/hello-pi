@@ -20,6 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate redis;
 
@@ -30,7 +31,7 @@ use redis::{Client, PubSub};
 use std::cmp::{max, min};
 
 pub fn run(gpio_s: channel::Sender<WritePwm>) {
-    let auth = env!("CARGO_REDIS_AUTH");
+    let auth = config_auth();
     let client = Client::open(&format!("redis://:{}@127.0.0.1/", auth)[..]).unwrap();
     let mut pub_sub: PubSub = client.get_pubsub().unwrap();
 
@@ -73,4 +74,15 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
 fn from_color(color: u8) -> i32 {
     let v = (color as f32 / 255.0 * 100.0) as i32;
     max(0, min(v, 100))
+}
+
+fn config_auth() -> String {
+    let mut settings = config::Config::default();
+    settings
+        // Add in `./Settings.toml`
+        .merge(config::File::with_name("Settings")).unwrap()
+        // Add in settings from the environment 
+        .merge(config::Environment::default()).unwrap();
+
+    settings.get::<String>("redis.auth").unwrap()
 }
