@@ -20,8 +20,19 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-pub fn run() {}
+extern crate crossbeam_channel as channel;
 
-fn hex_string(i: u8) -> String {
-    format!("{:X}", i)
+use model::SetRGB;
+
+pub fn run(redis_r: channel::Receiver<SetRGB>) {
+    loop {
+        match redis_r.recv() {
+            Some(SetRGB { color }) => println!("redis needs to publish now {}", hex_string(color)),
+            None => {}
+        }
+    }
+}
+
+fn hex_string(color: [f32; 4]) -> String {
+    color.iter().map(|i| format!("{:X}", *i as i32)).collect()
 }

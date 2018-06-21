@@ -34,7 +34,9 @@ mod redis_publish;
 mod support_gfx;
 
 use imgui::*;
-use model::RGB;
+use model::SetRGB;
+
+use std::thread;
 
 struct State {
     no_titlebar: bool,
@@ -88,16 +90,17 @@ const CLEAR_COLOR: [f32; 4] = [114.0 / 255.0, 144.0 / 255.0, 154.0 / 255.0, 1.0]
 
 fn main() {
     let mut state = State::default();
+    let (redis_s, redis_r) = channel::bounded(5);
+    thread::spawn(move || redis_publish::run(redis_r));
 
     support_gfx::run("RGB LEDs on Raspberry Pi".to_owned(), CLEAR_COLOR, |ui| {
-        let (redis_s, _redis_r) = channel::bounded(5);
         let orig_rgb_widget_color = &state.color_edit.color.clone()[..];
 
         let mut open = true;
         show_test_window(ui, &mut state, &mut open);
 
         if &orig_rgb_widget_color[..] != &state.color_edit.color {
-            redis_s.send(RGB {
+            redis_s.send(SetRGB {
                 color: state.color_edit.color,
             })
         }
