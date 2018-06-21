@@ -3,7 +3,7 @@ extern crate redis;
 extern crate wiringpi;
 
 mod model;
-mod pi_receiver;
+mod gpio_receiver;
 mod pins;
 mod redis_subscribe;
 
@@ -15,7 +15,7 @@ use std::time::Duration;
 fn main() {
     let (gpio_s, gpio_r) = channel::bounded(5);
 
-    thread::spawn(move || pi_receiver::run(gpio_r));
+    thread::spawn(move || gpio_receiver::run(gpio_r));
 
     // clear
     gpio_s.send(WritePwm {
