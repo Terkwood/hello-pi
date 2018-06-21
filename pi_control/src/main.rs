@@ -20,8 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-#[macro_use]
-extern crate crossbeam_channel;
+extern crate crossbeam_channel as channel;
 extern crate gfx;
 extern crate gfx_window_glutin;
 extern crate glutin;
@@ -30,9 +29,12 @@ extern crate imgui;
 extern crate imgui_gfx_renderer;
 extern crate imgui_sys;
 
-use imgui::*;
-
+mod model;
+mod redis_publish;
 mod support_gfx;
+
+use imgui::*;
+use model::RGB;
 
 struct State {
     no_titlebar: bool,
@@ -88,8 +90,18 @@ fn main() {
     let mut state = State::default();
 
     support_gfx::run("RGB LEDs on Raspberry Pi".to_owned(), CLEAR_COLOR, |ui| {
+        let (redis_s, redis_r) = channel::bounded(5);
+        let orig_rgb_widget_color = &state.color_edit.color.clone()[..];
+
         let mut open = true;
         show_test_window(ui, &mut state, &mut open);
+
+        if &orig_rgb_widget_color[..] != &state.color_edit.color {
+            redis_s.send(RGB {
+                color: state.color_edit.color,
+            })
+        }
+
         open
     });
 }
@@ -117,7 +129,7 @@ fn show_test_window(ui: &Ui, state: &mut State, opened: &mut bool) {
         ui.text(im_str!("Pick a color"));
 
         let mut b = ui
-            .color_picker(im_str!("Current##4"), &mut s.color)
+            .color_picker(im_str!("RGB##1"), &mut s.color)
             .flags(misc_flags)
             .alpha(s.alpha)
             .alpha_bar(s.alpha_bar)
