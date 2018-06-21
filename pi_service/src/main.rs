@@ -19,8 +19,4 @@ fn main() {
     thread::spawn(move || redis_subscribe::run(gpio_s));
 
     thread::park();
-    // Duty cycle ranges from 0 to 100
-    fn from_color(color: i32) -> i32 {
-        (color as f32 / 255.0 * 100.0) as i32
-    }
 }
