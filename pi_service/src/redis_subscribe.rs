@@ -31,7 +31,7 @@ use std::cmp::{max, min};
 
 pub fn run(gpio_s: channel::Sender<WritePwm>) {
     let auth = env!("CARGO_REDIS_AUTH");
-    let client = Client::open("redis://127.0.0.1/").unwrap();
+    let client = Client::open(format!("redis://127.0.0.1/")).unwrap();
     let mut pub_sub: PubSub = client.get_pubsub().unwrap();
 
     pub_sub.subscribe("pi_service_rgb").unwrap();
