@@ -1,2 +1,2 @@
 [redis]
-auth = "NOT_SET"
+auth = "NOT_SET" # use an environment variable called REDIS_AUTH
