@@ -48,7 +48,7 @@ pub fn run(redis_r: channel::Receiver<SetRGB>) {
 
 fn command_string(color: [f32; 4]) -> String {
     let rgb = to_rgb(color);
-    format!("RGB##{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2])
+    format!("RGB#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2])
 }
 
 fn to_rgb(color: [f32; 4]) -> [i32; 4] {
