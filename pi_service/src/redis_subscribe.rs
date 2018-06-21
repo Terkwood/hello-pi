@@ -2,6 +2,7 @@ extern crate crossbeam_channel as channel;
 extern crate redis;
 
 use model::WritePwm;
+use parse_rgb;
 use redis::{Client, PubSub};
 
 pub fn run(gpio_s: channel::Sender<WritePwm>) {
@@ -14,7 +15,14 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
         match msg {
             Ok(m) => {
                 let p: String = m.get_payload().unwrap();
-                println!("Redis receives {}", p);
+                let color = parse_rgb::hex_color(&p);
+                match color {
+                    Ok((_, c)) => println!(
+                        "Redis receives color {}: R {} G {} B {}",
+                        p, c.red, c.green, c.blue
+                    ),
+                    Err(_) => println!("Redis receives nonsense: {}", p),
+                }
             }
             Err(_) => unimplemented!(),
         }
