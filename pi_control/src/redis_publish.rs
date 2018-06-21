@@ -27,12 +27,25 @@ use model::SetRGB;
 pub fn run(redis_r: channel::Receiver<SetRGB>) {
     loop {
         match redis_r.recv() {
-            Some(SetRGB { color }) => println!("redis needs to publish now {}", hex_string(color)),
+            Some(SetRGB { color }) => {
+                println!("redis needs to publish now {}", command_string(color))
+            }
             None => {}
         }
     }
 }
 
-fn hex_string(color: [f32; 4]) -> String {
-    color.iter().map(|i| format!("{:X}", *i as i32)).collect()
+fn command_string(color: [f32; 4]) -> String {
+    let rgb = to_rgb(color);
+    format!("RGB##{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2])
+}
+
+fn to_rgb(color: [f32; 4]) -> [i32; 4] {
+    let mut out: [i32; 4] = [0; 4];
+
+    for (i, elem) in color.iter().enumerate() {
+        out[i] += (elem * 255.0) as i32
+    }
+
+    out
 }
