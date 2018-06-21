@@ -26,7 +26,7 @@ named!(hex_primary<&str, u8>,
 
 named!(pub hex_color<&str, Color>,
   do_parse!(
-           tag!("#")   >>
+           tag!("RGB#")   >>
     red:   hex_primary >>
     green: hex_primary >>
     blue:  hex_primary >>
@@ -37,7 +37,7 @@ named!(pub hex_color<&str, Color>,
 #[test]
 fn parse_color() {
     assert_eq!(
-        hex_color("#2F14DF"),
+        hex_color("RGB#2F14DF"),
         Ok((
             "",
             Color {

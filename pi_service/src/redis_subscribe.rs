@@ -41,7 +41,7 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
                     Err(_) => println!("Redis receives nonsense: {}", p),
                 }
             }
-            Err(_) => unimplemented!(),
+            Err(_) => println!("Redis receive error"),
         }
     }
 }
