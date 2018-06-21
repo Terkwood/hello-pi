@@ -29,8 +29,9 @@ use model::SetRGB;
 use redis::{Client, Commands};
 
 pub fn run(redis_r: channel::Receiver<SetRGB>) {
-    let auth = config_auth();
-    let client = Client::open(&format!("redis://:{}@127.0.0.1/", auth)[..]).unwrap();
+    let rcfg = RedisConfig::new();
+    let client =
+        Client::open(&format!("redis://:{}@127.0.0.1:{}/", rcfg.auth, rcfg.port)[..]).unwrap();
     let con = client.get_connection().unwrap();
 
     loop {
@@ -60,13 +61,23 @@ fn to_rgb(color: [f32; 4]) -> [i32; 4] {
     out
 }
 
-fn config_auth() -> String {
-    let mut settings = config::Config::default();
-    settings
+struct RedisConfig {
+    auth: String,
+    port: i32,
+}
+
+impl RedisConfig {
+    fn new() -> RedisConfig {
+        let mut settings = config::Config::default();
+        settings
         // Add in `./Settings.toml`
         .merge(config::File::with_name("Settings")).unwrap()
         // Add in settings from the environment 
         .merge(config::Environment::default()).unwrap();
 
-    settings.get::<String>("redis.auth").unwrap()
+        RedisConfig {
+            auth: settings.get::<String>("redis.auth").unwrap(),
+            port: settings.get::<i32>("redis.port").unwrap(),
+        }
+    }
 }

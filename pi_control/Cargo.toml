@@ -1,6 +1,6 @@
 [package]
 name = "pi_control"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Terkwood <<>>"]
 description = "Control panel for Raspberry Pi"
 license = "MIT"

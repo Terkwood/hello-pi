@@ -1,2 +1,3 @@
 [redis]
-auth = "NOT_SET" # use an environment variable called REDIS_AUTH
+auth = "NOT_SET" # use an environment variable called REDIS_AUTH to override
+port = 8379      # assume a nonstandard port for stunnel
