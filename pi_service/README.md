@@ -6,6 +6,14 @@ A service which executes instructions against Raspberry Pi based on messages rec
 
 Always use caution when wiring Raspberry Pi, and especially when executing arbitrary scripts that you find on the internet.  This project won't work with your Raspberry Pi wiring unless you've taken extreme care to match the configuration shown here.  This project is intended as an educational example only :fire:
 
+## Testing the redis subscription
+
+Try sending this from within the pi, or from a remote machine:
+
+```
+redis-cli -p 8379 publish pi_service_rgb "#cc00ff"
+```
+
 ## Installing Redis and stunnel on Raspberry Pi
 
 [We followed this helpful guide](https://www.digitalocean.com/community/tutorials/how-to-encrypt-traffic-to-redis-with-stunnel-on-ubuntu-16-04), with some modifications.
