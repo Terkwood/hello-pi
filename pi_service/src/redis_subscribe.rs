@@ -34,7 +34,7 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
     let auth = config_auth();
     let client = Client::open(&format!("redis://:{}@127.0.0.1/", auth)[..]).unwrap();
     let mut pub_sub: PubSub = client.get_pubsub().unwrap();
-
+    
     pub_sub.subscribe("pi_service_rgb").unwrap();
     loop {
         let msg = pub_sub.get_message();

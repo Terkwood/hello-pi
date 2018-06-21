@@ -20,15 +20,25 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+extern crate config;
 extern crate crossbeam_channel as channel;
+extern crate redis;
 
 use model::SetRGB;
 
+use redis::{Client, Commands};
+
 pub fn run(redis_r: channel::Receiver<SetRGB>) {
+    let auth = config_auth();
+    let client = Client::open(&format!("redis://:{}@127.0.0.1/", auth)[..]).unwrap();
+    let con = client.get_connection().unwrap();
+
     loop {
         match redis_r.recv() {
             Some(SetRGB { color }) => {
-                println!("redis needs to publish now {}", command_string(color))
+                let cmd = command_string(color);
+                println!("redis publish pi_service_rgb {}", cmd);
+                con.publish("pi_service_rgb", cmd).unwrap()
             }
             None => {}
         }
@@ -48,4 +58,15 @@ fn to_rgb(color: [f32; 4]) -> [i32; 4] {
     }
 
     out
+}
+
+fn config_auth() -> String {
+    let mut settings = config::Config::default();
+    settings
+        // Add in `./Settings.toml`
+        .merge(config::File::with_name("Settings")).unwrap()
+        // Add in settings from the environment 
+        .merge(config::Environment::default()).unwrap();
+
+    settings.get::<String>("redis.auth").unwrap()
 }

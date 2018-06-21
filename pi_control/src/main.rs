@@ -28,6 +28,7 @@ extern crate glutin;
 extern crate imgui;
 extern crate imgui_gfx_renderer;
 extern crate imgui_sys;
+extern crate redis;
 
 mod model;
 mod redis_publish;
