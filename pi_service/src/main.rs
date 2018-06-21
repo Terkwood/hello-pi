@@ -2,9 +2,9 @@ extern crate crossbeam_channel as channel;
 extern crate redis;
 extern crate wiringpi;
 
-mod model;
+pub mod model;
 mod pi_receiver;
-mod pins;
+pub mod pins;
 mod redis_subscribe;
 
 use model::WritePwm;
