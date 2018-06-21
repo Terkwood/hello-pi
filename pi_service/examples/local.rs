@@ -3,8 +3,8 @@ extern crate pi_service;
 extern crate redis;
 extern crate wiringpi;
 
-use pi_service::model::WritePwm;
 use pi_service::gpio_receiver;
+use pi_service::model::WritePwm;
 use pi_service::pins::*;
 use std::thread;
 use std::time::Duration;
