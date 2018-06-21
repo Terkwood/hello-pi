@@ -32,7 +32,6 @@ extern crate imgui_sys;
 
 use imgui::*;
 
-mod publish;
 mod support_gfx;
 
 struct State {
