@@ -20,7 +20,7 @@ Always use caution when wiring Raspberry Pi, and especially when executing arbit
 Try sending this from within the pi, or from a remote machine:
 
 ```sh
-redis-cli -p 8379 publish pi_service_rgb "#cc00ff"
+redis-cli -p 8379 publish pi_service "#cc00ffff"
 ```
 
 ## Installing Redis and stunnel on Raspberry Pi
