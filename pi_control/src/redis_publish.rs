@@ -39,7 +39,7 @@ pub fn run(redis_r: channel::Receiver<SetRGB>) {
             Some(SetRGB { color }) => {
                 let cmd = command_string(color);
                 println!("redis publish pi_service_rgb {}", cmd);
-                con.publish("pi_service_rgb", cmd).unwrap()
+                con.publish(&rcfg.channel[..], cmd).unwrap()
             }
             None => {}
         }
@@ -48,7 +48,10 @@ pub fn run(redis_r: channel::Receiver<SetRGB>) {
 
 fn command_string(color: [f32; 4]) -> String {
     let rgb = to_rgb(color);
-    format!("RGB#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2])
+    format!(
+        "RGB#{:02X}{:02X}{:02X}{:02X}",
+        rgb[0], rgb[1], rgb[2], rgb[3]
+    )
 }
 
 fn to_rgb(color: [f32; 4]) -> [i32; 4] {
@@ -64,6 +67,7 @@ fn to_rgb(color: [f32; 4]) -> [i32; 4] {
 struct RedisConfig {
     auth: String,
     port: i32,
+    channel: String,
 }
 
 impl RedisConfig {
@@ -78,6 +82,7 @@ impl RedisConfig {
         RedisConfig {
             auth: settings.get::<String>("redis.auth").unwrap(),
             port: settings.get::<i32>("redis.port").unwrap(),
+            channel: settings.get::<String>("redis.channel").unwrap(),
         }
     }
 }

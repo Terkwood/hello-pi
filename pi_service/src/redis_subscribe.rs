@@ -31,11 +31,12 @@ use redis::{Client, PubSub};
 use std::cmp::{max, min};
 
 pub fn run(gpio_s: channel::Sender<WritePwm>) {
-    let auth = config_auth();
-    let client = Client::open(&format!("redis://:{}@127.0.0.1/", auth)[..]).unwrap();
+    let rcfg = RedisConfig::new();
+    let client =
+        Client::open(&format!("redis://:{}@127.0.0.1:{}/", rcfg.auth, rcfg.port)[..]).unwrap();
     let mut pub_sub: PubSub = client.get_pubsub().unwrap();
 
-    pub_sub.subscribe("pi_service_rgb").unwrap();
+    pub_sub.subscribe(rcfg.channel).unwrap();
     loop {
         let msg = pub_sub.get_message();
         match msg {
@@ -76,14 +77,25 @@ fn from_color(color: u8) -> i32 {
     max(0, min(v, 100))
 }
 
+struct RedisConfig {
+    auth: String,
+    port: i32,
+    channel: String,
+}
 
-fn config_auth() -> String {
-    let mut settings = config::Config::default();
-    settings
+impl RedisConfig {
+    fn new() -> RedisConfig {
+        let mut settings = config::Config::default();
+        settings
         // Add in `./Settings.toml`
         .merge(config::File::with_name("Settings")).unwrap()
         // Add in settings from the environment 
         .merge(config::Environment::default()).unwrap();
 
-    settings.get::<String>("redis.auth").unwrap()
+        RedisConfig {
+            auth: settings.get::<String>("redis.auth").unwrap(),
+            port: settings.get::<i32>("redis.port").unwrap_or(6379),
+            channel: settings.get::<String>("redis.channel").unwrap(),
+        }
+    }
 }

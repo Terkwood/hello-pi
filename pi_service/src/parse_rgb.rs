@@ -7,6 +7,7 @@ pub struct Color {
     pub red: u8,
     pub green: u8,
     pub blue: u8,
+    pub alpha: u8,
 }
 
 fn from_hex(input: &str) -> Result<u8, num::ParseIntError> {
@@ -30,20 +31,22 @@ named!(pub hex_color<&str, Color>,
     red:   hex_primary >>
     green: hex_primary >>
     blue:  hex_primary >>
-    (Color { red, green, blue })
+    alpha: hex_primary >>
+    (Color { red, green, blue, alpha })
   )
 );
 
 #[test]
 fn parse_color() {
     assert_eq!(
-        hex_color("RGB#2F14DF"),
+        hex_color("RGB#2F14DF2F"),
         Ok((
             "",
             Color {
                 red: 47,
                 green: 20,
                 blue: 223,
+                alpha: 47
             }
         ))
     );
