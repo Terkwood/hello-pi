@@ -46,6 +46,9 @@ pub fn run(redis_r: channel::Receiver<SetRGB>) {
     }
 }
 
+/// e.g.
+/// command_string([0.25827336, 0.10971709, 0.29434448, 0.0])
+/// yields RGB#411B4B00
 fn command_string(color: [f32; 4]) -> String {
     let rgb = to_rgb(color);
     format!(
