@@ -52,15 +52,15 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
 
                         gpio_s.send(WritePwm {
                             pin: RED_GPIO,
-                            value: from_color(c.red) * from_color(c.alpha),
+                            value: from_color(c.red, c.alpha),
                         });
                         gpio_s.send(WritePwm {
                             pin: GREEN_GPIO,
-                            value: from_color(c.green) * from_color(c.alpha),
+                            value: from_color(c.green, c.alpha),
                         });
                         gpio_s.send(WritePwm {
                             pin: BLUE_GPIO,
-                            value: from_color(c.blue) * from_color(c.alpha),
+                            value: from_color(c.blue, c.alpha),
                         });
                     }
                     Err(_) => println!("Redis receives nonsense: {}", p),
@@ -72,8 +72,8 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
 }
 
 // Duty cycle ranges from 0 to 100
-fn from_color(color: u8) -> i32 {
-    let v = (color as f32 / 255.0 * 100.0) as i32;
+fn from_color(color: u8, alpha: u8) -> i32 {
+    let v = (color as f32 / 255.0 * 100.0 * alpha) as i32;
     max(0, min(v, 100))
 }
 
