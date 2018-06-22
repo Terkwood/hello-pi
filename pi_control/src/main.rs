@@ -101,10 +101,6 @@ fn main() {
         show_test_window(ui, &mut state, &mut open);
 
         if &orig_rgb_widget_color[..] != &state.color_edit.color {
-            println!(
-                "Color widget changed to R {} G {} B {}",
-                &state.color_edit.color[0], &state.color_edit.color[1], &state.color_edit.color[2]
-            );
             redis_s.send(SetRGB {
                 color: state.color_edit.color,
             })

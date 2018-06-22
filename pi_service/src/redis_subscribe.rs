@@ -46,8 +46,8 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
                 match color {
                     Ok((_, c)) => {
                         println!(
-                            "Redis receives color {}: R {} G {} B {}",
-                            p, c.red, c.green, c.blue
+                            "Redis receives color {}: R {} G {} B {} A {}",
+                            p, c.red, c.green, c.blue, c.alpha
                         );
 
                         gpio_s.send(WritePwm {
