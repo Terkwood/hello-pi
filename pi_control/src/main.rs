@@ -1,27 +1,9 @@
-//MIT License
+// Copyright (c) 2018 Terkwood
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
 
-//Copyright (c) 2018 Terkwood
-
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions:
-
-//The above copyright notice and this permission notice shall be included in all
-//copies or substantial portions of the Software.
-
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//SOFTWARE.
-
-#[macro_use]
-extern crate crossbeam_channel;
+extern crate crossbeam_channel as channel;
 extern crate gfx;
 extern crate gfx_window_glutin;
 extern crate glutin;
@@ -29,11 +11,16 @@ extern crate glutin;
 extern crate imgui;
 extern crate imgui_gfx_renderer;
 extern crate imgui_sys;
+extern crate redis;
+
+mod model;
+mod redis_publish;
+mod support_gfx;
 
 use imgui::*;
+use model::SetRGB;
 
-mod publish;
-mod support_gfx;
+use std::thread;
 
 struct State {
     no_titlebar: bool,
@@ -87,10 +74,21 @@ const CLEAR_COLOR: [f32; 4] = [114.0 / 255.0, 144.0 / 255.0, 154.0 / 255.0, 1.0]
 
 fn main() {
     let mut state = State::default();
+    let (redis_s, redis_r) = channel::bounded(5);
+    thread::spawn(move || redis_publish::run(redis_r));
 
     support_gfx::run("RGB LEDs on Raspberry Pi".to_owned(), CLEAR_COLOR, |ui| {
+        let orig_rgb_widget_color = &state.color_edit.color.clone()[..];
+
         let mut open = true;
         show_test_window(ui, &mut state, &mut open);
+
+        if &orig_rgb_widget_color[..] != &state.color_edit.color {
+            redis_s.send(SetRGB {
+                color: state.color_edit.color,
+            })
+        }
+
         open
     });
 }
@@ -118,7 +116,7 @@ fn show_test_window(ui: &Ui, state: &mut State, opened: &mut bool) {
         ui.text(im_str!("Pick a color"));
 
         let mut b = ui
-            .color_picker(im_str!("Current##4"), &mut s.color)
+            .color_picker(im_str!("RGB##1"), &mut s.color)
             .flags(misc_flags)
             .alpha(s.alpha)
             .alpha_bar(s.alpha_bar)

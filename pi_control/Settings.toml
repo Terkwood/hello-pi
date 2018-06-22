@@ -1,0 +1,4 @@
+[redis]
+auth = "NOT_SET" # use an environment variable called REDIS_AUTH to override
+port = 8379      # nonstandard for stunnel
+channel = "pi_service"
