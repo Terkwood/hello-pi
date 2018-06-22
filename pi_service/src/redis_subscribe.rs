@@ -52,15 +52,15 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
 
                         gpio_s.send(WritePwm {
                             pin: RED_GPIO,
-                            value: from_color(c.red),
+                            value: from_color(c.red) * from_color(c.alpha),
                         });
                         gpio_s.send(WritePwm {
                             pin: GREEN_GPIO,
-                            value: from_color(c.green),
+                            value: from_color(c.green) * from_color(c.alpha),
                         });
                         gpio_s.send(WritePwm {
                             pin: BLUE_GPIO,
-                            value: from_color(c.blue),
+                            value: from_color(c.blue) * from_color(c.alpha),
                         });
                     }
                     Err(_) => println!("Redis receives nonsense: {}", p),
