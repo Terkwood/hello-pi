@@ -73,8 +73,9 @@ pub fn run(gpio_s: channel::Sender<WritePwm>) {
 
 // Duty cycle ranges from 0 to 100
 fn from_color(color: u8, alpha: u8) -> i32 {
-    let v = (color as f32 / 255.0 * 100.0 * alpha) as i32;
-    max(0, min(v, 100))
+    let v = color as f32 / 255.0 * 100.0;
+    let a = alpha as f32 / 255.0 * 100.0;
+    max(0, min((v * a) as i32, 100))
 }
 
 struct RedisConfig {
