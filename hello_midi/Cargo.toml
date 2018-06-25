@@ -1,0 +1,10 @@
+[package]
+name = "hello_midi"
+version = "0.1.0"
+authors = ["Terkwood <<>>"]
+
+[dependencies]
+midir = "0.5.0"
+
+[dependencies.rimd]
+git = "https://github.com/RustAudio/rimd.git"
