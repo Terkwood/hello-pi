@@ -1,5 +1,5 @@
 [package]
-name = "hello_midi"
+name = "midi_light_show"
 version = "0.1.0"
 authors = ["Terkwood <<>>"]
 

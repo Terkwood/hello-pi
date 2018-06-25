@@ -132,14 +132,6 @@ version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "hello_midi"
-version = "0.1.0"
-dependencies = [
- "midir 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rimd 0.0.2 (git+https://github.com/RustAudio/rimd.git)",
-]
-
-[[package]]
 name = "libc"
 version = "0.2.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -148,6 +140,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "memalloc"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "midi_light_show"
+version = "0.1.0"
+dependencies = [
+ "midir 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rimd 0.0.2 (git+https://github.com/RustAudio/rimd.git)",
+]
 
 [[package]]
 name = "midir"
