@@ -26,8 +26,6 @@ We recommend downloading the JS Bach Goldberg Variations from https://www.opengo
 cargo run ~/Documents/Goldberg_Variations.mid
 ```
 
-We recommend listening to [Fredrik Johansson's MIDI repository](https://github.com/fredrik-johansson/midi), an excellent, extensive body of work!  Bravo!
-
 ## Building on Raspbian
 
 You need to install `libsound2`.
@@ -80,10 +78,12 @@ aplay -l
 
 Bach's Goldberg Variations are [available under Creative Commons License here](https://www.opengoldbergvariations.org/).
 
-Big thanks to [midir library](https://github.com/Boddlnagg/midir).
+The availability of the following audio libraries is greatly appreciated:
 
-Big thanks to [rimd library](https://github.com/RustAudio/rimd).
-
-Big thanks to [rtmidi library](https://github.com/thestk/rtmidi).
+* Big thanks to [midir library](https://github.com/Boddlnagg/midir).
+* Big thanks to [rimd library](https://github.com/RustAudio/rimd).
+* Big thanks to [rtmidi library](https://github.com/thestk/rtmidi).
 
 Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to our audio device.
+
+We recommend listening to [Fredrik Johansson's MIDI repository](https://github.com/fredrik-johansson/midi), an excellent, extensive body of work!  Bravo!
