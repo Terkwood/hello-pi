@@ -1,6 +1,10 @@
 [package]
 name = "midi_light_show"
 version = "0.1.0"
-authors = ["Terkwood <metaterkhorn@gmail.com>"]
+authors = ["Terkwood <<>>"]
 
 [dependencies]
+midir = "0.5.0"
+
+[dependencies.rimd]
+git = "https://github.com/RustAudio/rimd.git"
