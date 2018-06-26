@@ -8,10 +8,6 @@ We used the following wiring setup on a Raspberry Pi 3 B+.  Be careful to check 
 
 ![Fritzing Diagram](doc/midi_light_show.jpg)
 
-## Implementation
-
-Uses [rtmidi](https://github.com/thestk/rtmidi), [rimd](https://github.com/RustAudio/rimd) and [midir](https://github.com/Boddlnagg/midir) libs to read MIDI and output it to an audio device.
-
 ## Usage
 
 We recommend downloading the JS Bach Goldberg Variations from https://www.opengoldbergvariations.org/.
