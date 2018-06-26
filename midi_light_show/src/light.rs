@@ -34,7 +34,6 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let pi = wiringpi::setup_gpio();
 
-    //let led_pin_outs: &Vec<wiringpi::pin::OutputPin<wiringpi::pin::Pin>> = &PINS.iter().map(|p| pi.output_pin(*p)).collect();
     let led_pin_outs = {
         let mut lpos = Vec::new();
         // track some pins
@@ -70,7 +69,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
-                        println!("LOW  current on {}", *led);
+                        println!("LOW  current on LED #{} (pin {})", *led, PINS[*led]);
                     }
                 }
                 for u in unset {
@@ -91,7 +90,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::Low);
                         entry.insert(c);
-                        println!("HIGH current on {}", led);
+                        println!("HIGH current on #{} (pin {})", led, PINS[led]);
                     }
                     Occupied(_entry) => (),
                 }
