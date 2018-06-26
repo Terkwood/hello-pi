@@ -233,7 +233,7 @@ fn run(
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
     let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
-    
+
     println!("[ [ Light Show in 5 sec ] ] ");
     sleep(Duration::from_secs(5));
     println!("[ [   Show Starts Now   ] ]");
