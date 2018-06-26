@@ -239,12 +239,12 @@ fn run(
         let mut play_note = |midi: MidiNoteEvent| {
             sleep(Duration::from_micros(midi.vtime * micros_per_tick));
 
+            midi_sender.send(midi.clone());
+
             let _ = match midi.channel_event {
                 ChannelEvent::ChannelOn(c) => conn_out.send(&[c, midi.note, midi.velocity]),
                 ChannelEvent::ChannelOff(c) => conn_out.send(&[c, midi.note, midi.velocity]),
             };
-
-            midi_sender.send(midi.clone());
         };
 
         for n in notes {
