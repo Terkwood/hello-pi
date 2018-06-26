@@ -90,7 +90,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::Low);
                         entry.insert(c);
-                        println!("HIGH current on #{} (pin {})", led, PINS[led]);
+                        println!("HIGH current on LED #{} (pin {})", led, PINS[led]);
                     }
                     Occupied(_entry) => (),
                 }
