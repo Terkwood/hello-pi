@@ -1,3 +1,4 @@
+extern crate crossbeam_channel as channel;
 extern crate midir;
 extern crate rimd;
 
@@ -13,7 +14,7 @@ mod light;
 
 const DEFAULT_VEC_CAPACITY: usize = 133000;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ChannelEvent {
     ChannelOn(u8),
     ChannelOff(u8),
@@ -40,7 +41,7 @@ impl ChannelEvent {
 
 /// These are read from the MIDI file and
 /// will be used to produce audio.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MidiNoteEvent {
     channel_event: ChannelEvent,
     time: u64,
@@ -78,7 +79,13 @@ fn main() {
 
     let notes = notes_in_channel(timed_midi_messages);
 
-    match run(*output_device, notes, time_info.micros_per_clock()) {
+    // Create a channel for emitting midi events,
+    // spawn a thread to handle the LED lights
+
+    let (midi_s, midi_r) = channel::bounded(5);
+    std::thread::spawn(move || light::run(midi_r));
+
+    match run(*output_device, notes, time_info.micros_per_clock(), midi_s) {
         Ok(_) => (),
         Err(err) => println!("Error: {}", err.description()),
     }
@@ -221,6 +228,7 @@ fn run(
     output_device: usize,
     notes: Vec<MidiNoteEvent>,
     micros_per_tick: u64,
+    midi_sender: channel::Sender<MidiNoteEvent>,
 ) -> Result<(), Box<Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
@@ -235,6 +243,8 @@ fn run(
                 ChannelEvent::ChannelOn(c) => conn_out.send(&[c, midi.note, midi.velocity]),
                 ChannelEvent::ChannelOff(c) => conn_out.send(&[c, midi.note, midi.velocity]),
             };
+
+            midi_sender.send(midi.clone());
         };
 
         for n in notes {

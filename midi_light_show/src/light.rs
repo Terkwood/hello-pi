@@ -37,8 +37,6 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
     //let led_pin_outs: &Vec<wiringpi::pin::OutputPin<wiringpi::pin::Pin>> = &PINS.iter().map(|p| pi.output_pin(*p)).collect();
     let led_pin_outs = {
         let mut lpos = Vec::new();
-
-        let mut c = 0;
         // track some pins
         for &p in PINS {
             lpos.push(pi.output_pin(p));
