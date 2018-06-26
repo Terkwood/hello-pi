@@ -102,8 +102,8 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 
 fn midi_note_to_led(c: u8) -> usize {
     // TODO
-    const CHROMATIC_SCALE_NOTES: i8 = 8;
-    ((60 - c as i8).modulo(CHROMATIC_SCALE_NOTES)) as usize
+    const HELPME_CHROMATIC_SCALE_NOTES: i8 = 8;
+    ((60 - c as i8).modulo(HELPME_CHROMATIC_SCALE_NOTES)) as usize
 }
 
 ///
