@@ -8,12 +8,6 @@ We used the following wiring setup on a Raspberry Pi 3 B+.  Be careful to check 
 
 ![Fritzing Diagram](doc/midi_light_show.jpg)
 
-## Coordinating LEDs with music
-
-The idea behind which light to enable for which note is simple:  we only had enough jumper cables for 8 LEDs, so we decided to split the chromatic scale among those LEDs.  We'll show all the major tones of a C scale, as well as Bb, as individual, fully lit LEDs.  For the four remaining half steps, we'll power each "nearby light" at 50%.
-
-![The basic intuition](doc/whiteboard.jpg)
-
 ## Implementation
 
 Uses [rtmidi](https://github.com/thestk/rtmidi), [rimd](https://github.com/RustAudio/rimd) and [midir](https://github.com/Boddlnagg/midir) libs to read MIDI and output it to an audio device.
