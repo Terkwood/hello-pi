@@ -103,5 +103,25 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 fn midi_note_to_led(c: u8) -> usize {
     // TODO
     const CHROMATIC_SCALE_NOTES: i8 = 8;
-    (((60 - c as i8) % CHROMATIC_SCALE_NOTES) + CHROMATIC_SCALE_NOTES) as usize
+    ((60 - c as i8).modulo(CHROMATIC_SCALE_NOTES)) as usize
 }
+
+///
+/// Modulo that handles negative numbers, works the same as Python's `%`.
+///
+/// eg: `(a + b).modulo(c)`
+/// from https://stackoverflow.com/questions/31210357/is-there-a-modulus-not-remainder-function-operation
+pub trait ModuloSignedExt {
+    fn modulo(&self, n: Self) -> Self;
+}
+macro_rules! modulo_signed_ext_impl {
+    ($($t:ty)*) => ($(
+        impl ModuloSignedExt for $t {
+            #[inline]
+            fn modulo(&self, n: Self) -> Self {
+                (self % n + n) % n
+            }
+        }
+    )*)
+}
+modulo_signed_ext_impl! { i8 i16 i32 i64 }
