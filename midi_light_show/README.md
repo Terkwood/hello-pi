@@ -1,6 +1,6 @@
 # midi_light_show
 
-This project implements a simple LED light and music show which can be executed on a Raspberry Pi.
+This project implements a simple LED light and music show which can be executed on a Raspberry Pi.  You can provide a MIDI file and it will display a pleasing series of blinkenlights.
 
 ## Raspberry Pi LED Setup and Wiring
 
