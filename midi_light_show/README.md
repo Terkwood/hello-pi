@@ -1,6 +1,8 @@
 # midi_light_show
 
-This project implements a simple LED light and music show which can be executed on a Raspberry Pi.
+This project implements a simple LED light and music show which can be executed on a Raspberry Pi.  You can provide a MIDI file and it will display a pleasing series of blinkenlights.
+
+[![Bach Goldberg Variations on Raspberry Pi](http://img.youtube.com/vi/9y1bVPCvIWE/0.jpg)](http://www.youtube.com/watch?v=9y1bVPCvIWE "YouTube: Prototype MIDI Light Show on Raspberry Pi")
 
 ## Raspberry Pi LED Setup and Wiring
 
@@ -8,22 +10,20 @@ We used the following wiring setup on a Raspberry Pi 3 B+.  Be careful to check 
 
 ![Fritzing Diagram](doc/midi_light_show.jpg)
 
-## Implementation
-
-Uses [rtmidi](https://github.com/thestk/rtmidi), [rimd](https://github.com/RustAudio/rimd) and [midir](https://github.com/Boddlnagg/midir) libs to read MIDI and output it to an audio device.
-
 ## Usage
 
 We recommend downloading the JS Bach Goldberg Variations from https://www.opengoldbergvariations.org/.
 
-```sh
-cargo run MIDI_FILE MIDI_DEVICE_ID
-```
-
-For example:
+You need to start `fluidsynth` as a server, allow MIDI input, connect it to your ALSA sound device on the Pi, and then correctly select the device number when starting this application:
 
 ```sh
-cargo run ~/Documents/Goldberg_Variations.mid 1
+sudo apt-get install fluidsynth fluid-soundfont-gm
+
+fluidsynth -a alsa -i /usr/share/sounds/sf2/FluidR3_GM.sf2 --server
+
+aconnect -lio   #  and COUNT the number of MIDI related devices
+
+cargo run SOME_MIDI_FILE 1  # if fluidsynth is the only virtual midi device on your pi, it should have ID 1.  see above
 ```
 
 ## Building on Raspbian
@@ -48,13 +48,6 @@ At this point you can then build the `alsa` crate for rust on your Pi.
 
 Required reading: http://sandsoftwaresound.net/qsynth-fluidsynth-raspberry-pi/
 
-Key insight:  you need to start `fluidsynth` as a server, allow MIDI input, connect it to your ALSA sound device on the Pi, and then correctly select the device number when starting this application:
-
-```sh
-fluidsynth -a alsa -i /usr/share/sounds/sf2/FluidR3_GM.sf2 --server
-aconnect -lio   #  and COUNT the number of MIDI related devices
-cargo run ~/Goldberg_Variations.mid 1  # if fluidsynth is the only virtual midi device on your pi, it should have ID 1.  see `aconnect -lio`
-```
 
 Helper command -- play a midi file to your speaker using `fluidsynth`:
 
@@ -76,9 +69,7 @@ aplay -l
 
 ### Output to HDMI monitor
 
-If you're trying to use an HDMI monitor as an ALSA device in Raspbian, see https://raspberrypi.stackexchange.com/questions/4289/how-to-make-raspberry-use-hdmi-audio-as-default-system-output
-
-You'll need to uncomment `hdmi_drive=2` in `/boot/config.txt`.
+The easiest way to have your Raspberry Pi output sound in a timely fashion is to hook up an HDMI monitor and select it as the output source.
 
 ## Acknowledgements
 
@@ -92,4 +83,6 @@ The availability of the following audio libraries is greatly appreciated:
 
 Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to an audio device on Raspberry Pi.
 
-We recommend listening to [Fredrik Johansson's MIDI repository](https://github.com/fredrik-johansson/midi), an excellent, extensive body of work!  Bravo!
+We recommend listening to selections from [Bernd Kreuger's Classical Piano MIDI Page](http://www.piano-midi.de/midi_files.htm).  There are a number of different composers represented here, and it was fun to try some of these out on the Pi!
+
+We also recommend listening to [Fredrik Johansson's MIDI repository](https://github.com/fredrik-johansson/midi), an excellent, extensive body of work!  Bravo!  Their work is available for download.
