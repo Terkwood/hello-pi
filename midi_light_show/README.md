@@ -74,6 +74,12 @@ See sound cards:
 aplay -l
 ```
 
+### Output to HDMI monitor
+
+If you're trying to use an HDMI monitor as an ALSA device in Raspbian, see https://raspberrypi.stackexchange.com/questions/4289/how-to-make-raspberry-use-hdmi-audio-as-default-system-output
+
+You'll need to uncomment `hdmi_drive=2` in `/boot/config.txt`.
+
 ## Acknowledgements
 
 Bach's Goldberg Variations are [available under Creative Commons License here](https://www.opengoldbergvariations.org/).
