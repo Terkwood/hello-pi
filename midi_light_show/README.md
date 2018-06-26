@@ -2,6 +2,8 @@
 
 This project implements a simple LED light and music show which can be executed on a Raspberry Pi.  You can provide a MIDI file and it will display a pleasing series of blinkenlights.
 
+[![Bach Goldberg Variations on Raspberry Pi](http://img.youtube.com/vi/9y1bVPCvIWE/0.jpg)](http://www.youtube.com/watch?v=9y1bVPCvIWE "Prototype MIDI Light Show on Raspberry Pi")
+
 ## Raspberry Pi LED Setup and Wiring
 
 We used the following wiring setup on a Raspberry Pi 3 B+.  Be careful to check the GPIO pins of your specific model of Pi, as they may not match what is shown below.
