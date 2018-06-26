@@ -4,7 +4,9 @@ version = "0.1.0"
 authors = ["Terkwood <<>>"]
 
 [dependencies]
+crossbeam-channel = "0.2"
 midir = "0.5.0"
+wiringpi = "0.2"
 
 [dependencies.rimd]
 git = "https://github.com/RustAudio/rimd.git"

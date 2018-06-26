@@ -9,31 +9,40 @@ use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
 
-mod channels;
+mod light;
 
 const DEFAULT_VEC_CAPACITY: usize = 133000;
 
 #[derive(Debug)]
-pub enum ChannelNote {
-    On(u8),
-    Off(u8),
+pub enum ChannelEvent {
+    ChannelOn(u8),
+    ChannelOff(u8),
 }
 
-impl ChannelNote {
-    pub fn new(channel: u8) -> Option<ChannelNote> {
-        if channel >= channels::CHANNEL_OFF_FIRST && channel <= channels::CHANNEL_OFF_LAST {
-            Some(ChannelNote::Off(channel))
-        } else if channel >= channels::CHANNEL_ON_FIRST && channel <= channels::CHANNEL_ON_LAST {
-            Some(ChannelNote::On(channel))
+// midi channel addresses
+// from http://www.onicos.com/staff/iz/formats/midi-event.html
+const CHANNEL_OFF_FIRST: u8 = 0x80;
+const CHANNEL_OFF_LAST: u8 = 0x8F;
+const CHANNEL_ON_FIRST: u8 = 0x90;
+const CHANNEL_ON_LAST: u8 = 0x9F;
+
+impl ChannelEvent {
+    pub fn new(channel: u8) -> Option<ChannelEvent> {
+        if channel >= CHANNEL_OFF_FIRST && channel <= CHANNEL_OFF_LAST {
+            Some(ChannelEvent::ChannelOff(channel))
+        } else if channel >= CHANNEL_ON_FIRST && channel <= CHANNEL_ON_LAST {
+            Some(ChannelEvent::ChannelOn(channel))
         } else {
             None
         }
     }
 }
 
+/// These are read from the MIDI file and
+/// will be used to produce audio.
 #[derive(Debug)]
-pub struct MidiNote {
-    channel_note: ChannelNote,
+pub struct MidiNoteEvent {
+    channel_event: ChannelEvent,
     time: u64,
     vtime: u64,
     note: u8,
@@ -189,14 +198,14 @@ fn midi_messages_from(track_events: Vec<TrackEvent>) -> Vec<TimedMidiMessage> {
     midi_messages
 }
 
-fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNote> {
+fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNoteEvent> {
     let mut time: u64 = 0;
-    let mut notes: Vec<MidiNote> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
+    let mut notes: Vec<MidiNoteEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
     for msg in midi_messages {
         time += msg.vtime;
-        if let Some(cn) = ChannelNote::new(msg.data[0]) {
-            notes.push(MidiNote {
-                channel_note: cn,
+        if let Some(cn) = ChannelEvent::new(msg.data[0]) {
+            notes.push(MidiNoteEvent {
+                channel_event: cn,
                 time: time,
                 vtime: msg.vtime,
                 note: msg.data[1],
@@ -208,19 +217,23 @@ fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNote> {
     notes
 }
 
-fn run(output_device: usize, notes: Vec<MidiNote>, micros_per_tick: u64) -> Result<(), Box<Error>> {
+fn run(
+    output_device: usize,
+    notes: Vec<MidiNoteEvent>,
+    micros_per_tick: u64,
+) -> Result<(), Box<Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
     let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
     println!("[ [ Show Starts Now ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
-        let mut play_note = |midi: MidiNote| {
+        let mut play_note = |midi: MidiNoteEvent| {
             sleep(Duration::from_micros(midi.vtime * micros_per_tick));
 
-            let _ = match midi.channel_note {
-                ChannelNote::On(c) => conn_out.send(&[c, midi.note, midi.velocity]),
-                ChannelNote::Off(c) => conn_out.send(&[c, midi.note, midi.velocity]),
+            let _ = match midi.channel_event {
+                ChannelEvent::ChannelOn(c) => conn_out.send(&[c, midi.note, midi.velocity]),
+                ChannelEvent::ChannelOff(c) => conn_out.send(&[c, midi.note, midi.velocity]),
             };
         };
 

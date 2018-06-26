@@ -84,6 +84,6 @@ The availability of the following audio libraries is greatly appreciated:
 * Big thanks to [rimd library](https://github.com/RustAudio/rimd).
 * Big thanks to [rtmidi library](https://github.com/thestk/rtmidi).
 
-Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to our audio device.
+Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to an audio device on Raspberry Pi.
 
 We recommend listening to [Fredrik Johansson's MIDI repository](https://github.com/fredrik-johansson/midi), an excellent, extensive body of work!  Bravo!
