@@ -70,6 +70,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
+                        println!("LOW  current on {}", *led);
                     }
                 }
                 for u in unset {
@@ -90,6 +91,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::Low);
                         entry.insert(c);
+                        println!("HIGH current on {}", led);
                     }
                     Occupied(_entry) => (),
                 }
