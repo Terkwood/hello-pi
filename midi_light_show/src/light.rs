@@ -32,7 +32,7 @@ use MidiNoteEvent;
 
 static PINS: &'static [u16; 8] = &[13, 6, 5, 7, 23, 18, 15, 14];
 
-const BLUETOOTH_DELAY: Duration = Duration::from_millis(10);
+const BLUETOOTH_DELAY: Duration = Duration::from_millis(33);
 
 pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
