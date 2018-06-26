@@ -47,30 +47,50 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
     };
     // key: index from 0..8 corresponding to the physical order of the LEDs
     // value: MIDI channel
-    let mut led_to_midi_channel: &HashMap<usize, u8> = &HashMap::new();
+    let mut led_to_midi_channel: HashMap<usize, u8> = HashMap::new();
 
     loop {
         match output_r.recv() {
             Some(MidiNoteEvent {
-                channel_event,
+                channel_event: ChannelOff(c),
+                time: _,
+                vtime: _,
+                note: _,
+                velocity: _,
+            })
+            | Some(MidiNoteEvent {
+                channel_event: ChannelOn(c),
+                time: _,
+                vtime: _,
+                note: _,
+                velocity: 0,
+            }) => {
+                let mut unset: Vec<usize> = vec![];
+                for (led, lchan) in &led_to_midi_channel {
+                    if c == *lchan {
+                        // turn off the LED
+                        led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
+                        unset.push(*led);
+                    }
+                }
+                for u in unset {
+                    led_to_midi_channel.remove(&u);
+                }
+            }
+            Some(MidiNoteEvent {
+                channel_event: ChannelOn(c),
                 time: _,
                 vtime: _,
                 note,
-                velocity,
+                velocity: _,
             }) => {
                 let led = midi_note_to_led(note);
-                match channel_event {
-                    ChannelOn(c) => unimplemented!(),
-                    ChannelOff(c) => {
-                        for (led, lchan) in led_to_midi_channel {
-                            if c == *lchan {
-                                // turn off the LED
-                                //let _: _ = led_pin_outs[led].digital_write(unimplemented!());
-                                led_pin_outs[*led].digital_write(unimplemented!());
-                            }
-                        }
-                    }
-                }
+                // only mess with this note if it's
+                // not being used by another channel
+
+                /*if !led_to_midi_channel.contains_key(&led) {
+                    led_to_midi_channel[&led] = c;
+                }*/
             }
             None => {}
         }
