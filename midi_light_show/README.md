@@ -17,7 +17,13 @@ Uses [rtmidi](https://github.com/thestk/rtmidi), [rimd](https://github.com/RustA
 We recommend downloading the JS Bach Goldberg Variations from https://www.opengoldbergvariations.org/.
 
 ```sh
-cargo run ~/Documents/Goldberg_Variations.mid
+cargo run MIDI_FILE MIDI_DEVICE_ID
+```
+
+For example:
+
+```sh
+cargo run ~/Documents/Goldberg_Variations.mid 1
 ```
 
 ## Building on Raspbian
