@@ -88,7 +88,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 // not being used by another channel
                 match led_to_midi_channel.entry(led) {
                     Vacant(entry) => {
-                        led_pin_outs[led].digital_write(wiringpi::pin::Value::Low);
+                        led_pin_outs[led].digital_write(wiringpi::pin::Value::High);
                         entry.insert(c);
                         println!("HIGH current on LED #{} (pin {})", led, PINS[led]);
                     }
