@@ -25,14 +25,10 @@ extern crate wiringpi;
 
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
-use std::thread;
-use std::time::Duration;
 use ChannelEvent::{ChannelOff, ChannelOn};
 use MidiNoteEvent;
 
 static PINS: &'static [u16; 8] = &[13, 6, 5, 7, 23, 18, 15, 14];
-
-const BLUETOOTH_DELAY: Duration = Duration::from_millis(224);
 
 pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
@@ -67,7 +63,6 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 note: _,
                 velocity: 0,
             }) => {
-                thread::sleep(BLUETOOTH_DELAY);
                 let mut unset: Vec<usize> = vec![];
                 for (led, lchan) in &led_to_midi_channel {
                     if c == *lchan {
@@ -89,7 +84,6 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 velocity: _,
             }) => {
                 let led = midi_note_to_led(note);
-                thread::sleep(BLUETOOTH_DELAY);
                 // only mess with this note if it's
                 // not being used by another channel
                 match led_to_midi_channel.entry(led) {
