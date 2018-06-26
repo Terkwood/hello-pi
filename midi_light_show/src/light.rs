@@ -43,6 +43,12 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 
         lpos
     };
+
+    // clear everything when you start up
+    for po in led_pin_outs {
+        po.digital_write(wiringpi::pin::Value::Low);
+    }
+    
     // key: index from 0..8 corresponding to the physical order of the LEDs
     // value: MIDI channel
     let mut led_to_midi_channel: HashMap<usize, u8> = HashMap::new();
