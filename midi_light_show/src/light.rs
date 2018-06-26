@@ -23,6 +23,7 @@
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
 use ChannelEvent::{ChannelOff, ChannelOn};
 use MidiNoteEvent;
@@ -87,10 +88,13 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 let led = midi_note_to_led(note);
                 // only mess with this note if it's
                 // not being used by another channel
-
-                /*if !led_to_midi_channel.contains_key(&led) {
-                    led_to_midi_channel[&led] = c;
-                }*/
+                match led_to_midi_channel.entry(led) {
+                    Vacant(entry) => {
+                        led_pin_outs[led].digital_write(wiringpi::pin::Value::Low);
+                        entry.insert(c);
+                    }
+                    Occupied(_entry) => (),
+                }
             }
             None => {}
         }
@@ -98,5 +102,6 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 }
 
 fn midi_note_to_led(c: u8) -> usize {
-    unimplemented!()
+    const CHROMATIC_SCALE_NOTES: u8 = 12;
+    (((60 - c) % CHROMATIC_SCALE_NOTES) + CHROMATIC_SCALE_NOTES) as usize
 }
