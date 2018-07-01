@@ -20,6 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
@@ -31,6 +32,14 @@ use MidiNoteEvent;
 static PINS: &'static [u16; 8] = &[13, 6, 5, 7, 23, 18, 15, 14];
 
 pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
+    let mut settings = config::Config::default();
+    settings
+            // Add in `./Settings.toml`
+            .merge(config::File::with_name("Settings")).unwrap()
+            // Add in settings from the environment (with a prefix of MIDI_LIGHT_SHOW)
+            // Eg.. `MIDI_LIGHT_SHOW_DEBUG=1 ./target/midi_light_show` would set the `debug` key
+            .merge(config::Environment::with_prefix("MIDI_LIGHT_SHOW")).unwrap();
+
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let pi = wiringpi::setup_gpio();
 
