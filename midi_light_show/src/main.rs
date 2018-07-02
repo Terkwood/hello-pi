@@ -112,6 +112,7 @@ impl MidiTimeInfo {
     /// > (the 'standard' quarter note).  8 is standard
 
     pub fn micros_per_clock(self: &Self) -> u64 {
+        // Sergei R demands this
         const MAGIC0: f32 = 24.0;
         const MAGIC1: f32 = 3.33333333;
         // SO, THIS IS A ROUGH ESTIMATE
