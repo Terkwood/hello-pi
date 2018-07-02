@@ -120,7 +120,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 }
 
 fn midi_note_to_led(c: u8, num_leds: usize) -> usize {
-    ((60 - c as usize).modulo(num_leds)) as usize
+    ((60 - c as i8).modulo(num_leds as i8)) as usize
 }
 
 ///
@@ -141,4 +141,4 @@ macro_rules! modulo_signed_ext_impl {
         }
     )*)
 }
-modulo_signed_ext_impl! { i8 i16 i32 i64 usize }
+modulo_signed_ext_impl! { i8 i16 i32 i64 }
