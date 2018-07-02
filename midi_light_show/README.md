@@ -20,6 +20,11 @@ extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27]
 basic = [13, 6, 5, 7, 23, 18, 15, 14]
 ```
 
+The diagrams for the "extended" layout are available in the `doc` directory:
+
+* [Extended layout Fritzing file](doc/midi_light_show_extended.fzz)
+* [Extended layout image](doc/midi_light_show_extended.jpg)
+
 ## Usage
 
 We recommend downloading the JS Bach Goldberg Variations from https://www.opengoldbergvariations.org/.
