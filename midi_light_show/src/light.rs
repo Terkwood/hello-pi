@@ -61,34 +61,35 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 
     // key: index from 0..8 corresponding to the physical order of the LEDs
     // value: MIDI channel
-    let mut led_to_midi_channel: HashMap<usize, u8> = HashMap::new();
+    let mut led_to_note: HashMap<usize, u8> = HashMap::new();
 
     loop {
         match output_r.recv() {
             Some(MidiNoteEvent {
-                channel_event: ChannelOff(c),
+                channel_event: ChannelOff(_c),
                 time: _,
                 vtime: _,
-                note: _,
+                note,
                 velocity: _,
             })
             | Some(MidiNoteEvent {
-                channel_event: ChannelOn(c),
+                channel_event: ChannelOn(_c),
                 time: _,
                 vtime: _,
-                note: _,
+                note,
                 velocity: 0,
             }) => {
+                println!("unset {:?}", note);
                 let mut unset: Vec<usize> = vec![];
-                for (led, lchan) in &led_to_midi_channel {
-                    if c == *lchan {
+                for (led, lnote) in &led_to_note {
+                    if note == *lnote {
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
                     }
                 }
                 for u in unset {
-                    led_to_midi_channel.remove(&u);
+                    led_to_note.remove(&u);
                 }
             }
             Some(MidiNoteEvent {
@@ -101,7 +102,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 let led = midi_note_to_led(note, num_leds);
                 // only mess with this note if it's
                 // not being used by another channel
-                match led_to_midi_channel.entry(led) {
+                match led_to_note.entry(led) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::High);
                         entry.insert(c);
