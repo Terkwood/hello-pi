@@ -93,7 +93,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 }
             }
             Some(MidiNoteEvent {
-                channel_event: ChannelOn(c),
+                channel_event: ChannelOn(_c),
                 time: _,
                 vtime: _,
                 note,
@@ -105,7 +105,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 match led_to_note.entry(led) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::High);
-                        entry.insert(c);
+                        entry.insert(note);
                     }
                     Occupied(_entry) => (),
                 }
