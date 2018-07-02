@@ -218,13 +218,15 @@ fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNoteEvent> 
     for msg in midi_messages {
         time += msg.vtime;
         if let Some(cn) = ChannelEvent::new(msg.data[0]) {
-            notes.push(MidiNoteEvent {
+            let e = MidiNoteEvent {
                 channel_event: cn,
                 time: time,
                 vtime: msg.vtime,
                 note: msg.data[1],
                 velocity: msg.data[2],
-            })
+            };
+            println!("{:?}", e);
+            notes.push(e)
         }
     }
 
