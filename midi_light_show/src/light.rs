@@ -38,9 +38,9 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
             // Eg.. `MIDI_LIGHT_SHOW_DEBUG=1 ./target/midi_light_show` would set the `debug` key
             .merge(config::Environment::with_prefix("MIDI_LIGHT_SHOW")).unwrap();
 
-    let layout_selection = settings.get::<String>("layout.selection").unwrap();
+    let layout_selection = settings.get::<String>("layout").unwrap();
     let pins = &settings
-        .get::<Vec<u16>>(&format!("layout.{}", &layout_selection[..])[..])
+        .get::<Vec<u16>>(&format!("pins.{}", &layout_selection[..])[..])
         .unwrap();
     let num_leds: usize = pins.len();
 
