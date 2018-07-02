@@ -20,6 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
@@ -28,17 +29,26 @@ use std::collections::HashMap;
 use ChannelEvent::{ChannelOff, ChannelOn};
 use MidiNoteEvent;
 
-static PINS: &'static [u16; 8] = &[13, 6, 5, 7, 23, 18, 15, 14];
-
 pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
+    let mut settings = config::Config::default();
+    settings
+            // Add in `./Settings.toml`
+            .merge(config::File::with_name("Settings")).unwrap();
+
+    let layout_selection = settings.get::<String>("layout").unwrap();
+    let pins = &settings
+        .get::<Vec<u16>>(&format!("pins.{}", &layout_selection[..])[..])
+        .unwrap();
+    let num_leds: usize = pins.len();
+
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
-    let pi = wiringpi::setup_gpio();
+    let gpio = wiringpi::setup_gpio();
 
     let led_pin_outs = {
         let mut lpos = Vec::new();
         // track some pins
-        for &p in PINS {
-            lpos.push(pi.output_pin(p));
+        for &p in pins {
+            lpos.push(gpio.output_pin(p));
         }
 
         lpos
@@ -75,7 +85,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
-                        println!("LOW  current on LED #{} (pin {})", *led, PINS[*led]);
+                        println!("LOW  current on LED #{} (pin {})", *led, pins[*led]);
                     }
                 }
                 for u in unset {
@@ -89,14 +99,14 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 note,
                 velocity: _,
             }) => {
-                let led = midi_note_to_led(note);
+                let led = midi_note_to_led(note, num_leds);
                 // only mess with this note if it's
                 // not being used by another channel
                 match led_to_midi_channel.entry(led) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::High);
                         entry.insert(c);
-                        println!("HIGH current on LED #{} (pin {})", led, PINS[led]);
+                        println!("HIGH current on LED #{} (pin {})", led, pins[led]);
                     }
                     Occupied(_entry) => (),
                 }
@@ -106,9 +116,8 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
     }
 }
 
-fn midi_note_to_led(c: u8) -> usize {
-    const NUM_LEDS: i8 = 8;
-    ((60 - c as i8).modulo(NUM_LEDS)) as usize
+fn midi_note_to_led(c: u8, num_leds: usize) -> usize {
+    ((60 - c as i8).modulo(num_leds as i8)) as usize
 }
 
 ///
