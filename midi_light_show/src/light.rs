@@ -79,10 +79,10 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 note,
                 velocity: 0,
             }) => {
-                println!("unset {:?}", note);
                 let mut unset: Vec<usize> = vec![];
                 for (led, lnote) in &led_to_note {
                     if note == *lnote {
+                        println!("unset {:?}", note);
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
