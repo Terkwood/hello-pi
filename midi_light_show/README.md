@@ -85,6 +85,13 @@ aplay -l
 
 The easiest way to have your Raspberry Pi output sound in a timely fashion is to hook up an HDMI monitor and select it as the output source.
 
+## Further Reading
+
+* [MIDI EVent Table](http://www.onicos.com/staff/iz/formats/midi-event.html)
+* [The MIDI File Format](https://www.csie.ntu.edu.tw/~r92092/ref/midi/)
+* [Ted's Linux MIDI Guide](http://tedfelix.com/linux/linux-midi.html)
+* [The Linux MIDI-HOWTO](http://tldp.org/HOWTO/MIDI-HOWTO-10.html)
+
 ## Acknowledgements
 
 Bach's Goldberg Variations are [available under Creative Commons License here](https://www.opengoldbergvariations.org/).

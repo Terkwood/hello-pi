@@ -196,10 +196,14 @@ fn midi_messages_from(track_events: Vec<TrackEvent>) -> Vec<TimedMidiMessage> {
     for te in track_events {
         match te {
             TrackEvent { vtime, event } => match event {
-                Event::Midi(m) => midi_messages.push(TimedMidiMessage {
-                    vtime,
-                    data: m.data,
-                }),
+                Event::Midi(m) => {
+                    let t = TimedMidiMessage {
+                        vtime,
+                        data: m.data,
+                    };
+                    println!("{:?}", t);
+                    midi_messages.push(t)
+                }
                 Event::Meta(_m) => {}
             },
         }
