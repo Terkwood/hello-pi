@@ -4,11 +4,26 @@ This project implements a simple LED light and music show which can be executed 
 
 [![Bach Goldberg Variations on Raspberry Pi](http://img.youtube.com/vi/9y1bVPCvIWE/0.jpg)](http://www.youtube.com/watch?v=9y1bVPCvIWE "YouTube: Prototype MIDI Light Show on Raspberry Pi")
 
-## Raspberry Pi LED Setup and Wiring
+## Raspberry Pi LED Wiring
 
-We used the following wiring setup on a Raspberry Pi 3 B+.  Be careful to check the GPIO pins of your specific model of Pi, as they may not match what is shown below.
+This project supports multiple LED layouts.  Shown below is the "basic" layout with eight LEDs.  Be careful to check the GPIO pins of your specific model of Pi, as they may not match what is shown below.
 
 ![Fritzing Diagram](doc/midi_light_show.jpg)
+
+You can also choose an "extended" layout which uses additional LEDs, or specify additional layouts, by modifying the `[pins]` section of [Settings.toml](Settings.toml):
+
+```toml
+layout = "basic"   ## select which pin layout you want to use
+
+[pins]
+extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27]
+basic = [13, 6, 5, 7, 23, 18, 15, 14]
+```
+
+The diagrams for the "extended" layout are available in the `doc` directory:
+
+* [Extended layout Fritzing file](doc/midi_light_show_extended.fzz)
+* [Extended layout image](doc/midi_light_show_extended.jpg)
 
 ## Usage
 
@@ -47,7 +62,6 @@ At this point you can then build the `alsa` crate for rust on your Pi.
 ### Virtual MIDI
 
 Required reading: http://sandsoftwaresound.net/qsynth-fluidsynth-raspberry-pi/
-
 
 Helper command -- play a midi file to your speaker using `fluidsynth`:
 
