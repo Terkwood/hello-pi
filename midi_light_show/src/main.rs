@@ -114,7 +114,7 @@ impl MidiTimeInfo {
     pub fn micros_per_clock(self: &Self) -> u64 {
         // Sergei R demands this
         const MAGIC0: f32 = 24.0;
-        const MAGIC1: f32 = 3.6666666;
+        const MAGIC1: f32 = 3.745454577777;
         // SO, THIS IS A ROUGH ESTIMATE
         // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
         // ...you should do more arithmetic.
@@ -237,8 +237,6 @@ fn run(
 
     let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
 
-    println!("[ [ Light Show in 5 sec ] ] ");
-    sleep(Duration::from_secs(5));
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
