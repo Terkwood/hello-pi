@@ -6,9 +6,19 @@ This project implements a simple LED light and music show which can be executed 
 
 ## Raspberry Pi LED Setup and Wiring
 
-We used the following wiring setup on a Raspberry Pi 3 B+.  Be careful to check the GPIO pins of your specific model of Pi, as they may not match what is shown below.
+This project supports multiple LED layouts.  Shown below is the "basic" layout with eight LEDs.  Be careful to check the GPIO pins of your specific model of Pi, as they may not match what is shown below.
 
 ![Fritzing Diagram](doc/midi_light_show.jpg)
+
+You can also choose an "extended" layout which uses additional LEDs, or specify additional layouts, by modifying the `[pins]` section of [Settings.toml](Settings.toml):
+
+```toml
+layout = "basic"   ## select which pin layout you want to use
+
+[pins]
+extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27]
+basic = [13, 6, 5, 7, 23, 18, 15, 14]
+```
 
 ## Usage
 
