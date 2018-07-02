@@ -1,6 +1,6 @@
 [package]
 name = "midi_light_show"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Terkwood <<>>"]
 
 [dependencies]
