@@ -1,4 +1,4 @@
 [layout]
-selection = "basic"
+selection = "extended"
 extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27]
 basic = [13, 6, 5, 7, 23, 18, 15, 14]
