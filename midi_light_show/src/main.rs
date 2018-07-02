@@ -114,7 +114,7 @@ impl MidiTimeInfo {
     pub fn micros_per_clock(self: &Self) -> u64 {
         // Sergei R demands this
         const MAGIC0: f32 = 24.0;
-        const MAGIC1: f32 = 3.33333333;
+        const MAGIC1: f32 = 3.6666666;
         // SO, THIS IS A ROUGH ESTIMATE
         // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
         // ...you should do more arithmetic.
