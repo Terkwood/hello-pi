@@ -85,6 +85,17 @@ aplay -l
 
 The easiest way to have your Raspberry Pi output sound in a timely fashion is to hook up an HDMI monitor and select it as the output source.
 
+### Transforming MP3s to MIDI
+
+The pipeline we used to transform MP3s to MIDI was as follows:
+
+* Use [Audacity](https://www.audacityteam.org/) to convert the MP3 to a WAV.
+* Use [AmazingMIDI](http://www.pluto.dti.ne.jp/~araki/amazingmidi/) to convert the WAV to a MIDI.
+
+For instance, after converting the MP3 for [Rachmaninov's Prelude in C Sharp Minor, Op 3](https://www.gutenberg.org/ebooks/10175) to a WAV, we used the following settings in `AmazingMIDI` in order to generate a [pleasing MIDI output file](resources/rach3.mid):
+
+![Rach 3 to MIDI](doc/rach3_to_midi.png)
+
 ## Further Reading
 
 * [MIDI EVent Table](http://www.onicos.com/staff/iz/formats/midi-event.html)
@@ -103,6 +114,12 @@ The availability of the following audio libraries is greatly appreciated:
 * Big thanks to [rtmidi library](https://github.com/thestk/rtmidi).
 
 Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to an audio device on Raspberry Pi.
+
+We greatly appreciate the availability of [Project Gutenberg](https://www.gutenberg.org/wiki/Main_Page), which provides most of its content with [very few restrictions](https://www.gutenberg.org/wiki/Gutenberg:Permission_How-To).
+
+### Audio and MIDI Resources
+
+We drew from MP3 audio found [at Project Gutenberg Music Category](https://www.gutenberg.org/browse/categories/3).
 
 We recommend listening to selections from [Bernd Kreuger's Classical Piano MIDI Page](http://www.piano-midi.de/midi_files.htm).  There are a number of different composers represented here, and it was fun to try some of these out on the Pi!
 
