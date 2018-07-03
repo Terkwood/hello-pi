@@ -115,7 +115,7 @@ The availability of the following audio libraries is greatly appreciated:
 
 Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to an audio device on Raspberry Pi.
 
-We greatly appreciate the availability of [Project Gutenberg](https://www.gutenberg.org/wiki/Main_Page), which provides most of its content with [very few restrictions](https://www.gutenberg.org/wiki/Gutenberg:Permission_How-To).
+We greatly appreciate the availability of [Project Gutenberg](https://www.gutenberg.org/wiki/Main_Page), which provides most of its content with [very few restrictions](https://www.gutenberg.org/wiki/Gutenberg:Permission_How-To).  The Rach 3 MIDI file in this project was derived from the MP3 audio available here.
 
 ### Audio and MIDI Resources
 
