@@ -90,7 +90,6 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 
                 for (led, lcn) in &led_to_cn {
                     if note == lcn.note && midi_chan == lcn.channel {
-                        println!("unset {:?}", note);
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
