@@ -116,8 +116,8 @@ impl MidiTimeInfo {
         // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
         // ...you should do more arithmetic.
         (self.micros_per_qnote as f32
-            / self.clocks_per_tick as f32
-            / self.num_32nd_notes_per_24_ticks as f32) as u64
+            / self.num_32nd_notes_per_24_ticks as f32
+            / self.clocks_per_tick as f32) as u64
     }
 }
 
