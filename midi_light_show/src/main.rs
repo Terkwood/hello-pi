@@ -150,6 +150,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
                         ref data,
                     }) = event.event
                     {
+                        println!("event: {:?}",event.event);
                         clocks_per_tick = data[2];
                         num_32nd_notes_per_24_clocks = data[3];
                     }
@@ -202,7 +203,6 @@ fn midi_messages_from(track_events: Vec<TrackEvent>) -> Vec<TimedMidiMessage> {
                         vtime,
                         data: m.data,
                     };
-                    println!("{:?}", t);
                     midi_messages.push(t)
                 }
                 Event::Meta(_m) => {}
@@ -226,7 +226,6 @@ fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNoteEvent> 
                 note: msg.data[1],
                 velocity: msg.data[2],
             };
-            println!("{:?}", e);
             notes.push(e)
         }
     }
