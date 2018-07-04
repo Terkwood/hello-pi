@@ -153,6 +153,15 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
                     }
 
                     if let rimd::Event::Meta(rimd::MetaEvent {
+                        command: rimd::MetaCommand::SMPTEOffset,
+                        length: _,
+                        data: _,
+                    }) = event.event
+                    {
+                        println!("event: {:?}", event.event);
+                    }
+
+                    if let rimd::Event::Meta(rimd::MetaEvent {
                         command: rimd::MetaCommand::TimeSignature,
                         length: _,
                         ref data,
