@@ -118,8 +118,7 @@ impl MidiTimeInfo {
         // SO, THIS IS A ROUGH ESTIMATE
         // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
         // ...you should do more arithmetic.
-        (self.micros_per_qnote as f32
-            / self.clocks_per_tick as f32) as u64
+        (self.micros_per_qnote as f32 / self.clocks_per_tick as f32) as u64
     }
 }
 
@@ -145,12 +144,21 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
                     }
 
                     if let rimd::Event::Meta(rimd::MetaEvent {
+                        command: rimd::MetaCommand::TempoSetting,
+                        length: _,
+                        data: _,
+                    }) = event.event
+                    {
+                        println!("event: {:?}", event.event);
+                    }
+
+                    if let rimd::Event::Meta(rimd::MetaEvent {
                         command: rimd::MetaCommand::TimeSignature,
                         length: _,
                         ref data,
                     }) = event.event
                     {
-                        println!("event: {:?}",event.event);
+                        println!("event: {:?}", event.event);
                         clocks_per_tick = data[2];
                         num_32nd_notes_per_24_clocks = data[3];
                     }
