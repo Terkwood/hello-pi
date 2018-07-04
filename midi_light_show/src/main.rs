@@ -112,13 +112,12 @@ impl MidiTimeInfo {
     /// > (the 'standard' quarter note).  8 is standard
 
     pub fn micros_per_clock(self: &Self) -> u64 {
-        // Sergei R demands this
-        const MAGIC0: f32 = 24.0;
-        const MAGIC1: f32 = 3.745454577777;
         // SO, THIS IS A ROUGH ESTIMATE
         // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
         // ...you should do more arithmetic.
-        (self.micros_per_qnote as f32 / MAGIC0 / MAGIC1) as u64
+        (self.micros_per_qnote as f32
+            / self.clocks_per_tick as f32
+            / self.num_32nd_notes_per_24_ticks as f32) as u64
     }
 }
 
