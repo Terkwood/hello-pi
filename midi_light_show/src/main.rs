@@ -96,6 +96,9 @@ fn main() {
 ///
 /// The Short answer:  Usually 24
 /// The Long answer:   It varies based on num_32nd_notes_per_24_ticks    
+/// Also:
+/// - http://www.recordingblogs.com/wiki/time-division-of-a-midi-file
+/// - https://stackoverflow.com/questions/5288593/how-to-convert-midi-timeline-into-the-actual-timeline-that-should-be-played/5297236#5297236
 pub struct MidiTimeInfo {
     pub micros_per_qnote: u64,
     pub num_32nd_notes_per_24_ticks: u8, // usually 8
@@ -116,7 +119,6 @@ impl MidiTimeInfo {
         // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
         // ...you should do more arithmetic.
         (self.micros_per_qnote as f32
-            / self.num_32nd_notes_per_24_ticks as f32
             / self.clocks_per_tick as f32) as u64
     }
 }
