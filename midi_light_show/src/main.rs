@@ -136,7 +136,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
                     }) = event.event
                     {
                         let mpq = data_as_u64(micros_per_qnote_vec);
-                        println!("header micros per qnote: {:?}", mpq);
+                        println!("TempoSetting Meta: micros per qnote = {:?}", mpq);
                         micros_per_qnote = Some(mpq)
                     }
 
@@ -146,18 +146,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
                         data: _,
                     }) = event.event
                     {
-                        println!("event: {:?}", event.event);
-                    }
-
-                    if let rimd::Event::Meta(rimd::MetaEvent {
-                        command: rimd::MetaCommand::TimeSignature,
-                        length: _,
-                        ref data,
-                    }) = event.event
-                    {
-                        println!("event: {:?}", event.event);
-                        //clocks_per_tick = data[2];
-                        //num_32nd_notes_per_24_clocks = data[3];
+                        println!("{:?}", event.event);
                     }
 
                     events.push(event.clone());
