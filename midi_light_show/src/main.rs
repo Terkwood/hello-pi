@@ -42,12 +42,25 @@ impl ChannelEvent {
 /// These are read from the MIDI file and
 /// will be used to produce audio.
 #[derive(Debug, Clone)]
-pub struct MidiNoteEvent {
+pub struct NoteEvent {
     channel_event: ChannelEvent,
     time: u64,
     vtime: u64,
     note: u8,
     velocity: u8,
+}
+
+#[derive(Clone)]
+pub struct TempoEvent {
+    time: u64,
+    vtime: u64,
+    micros_per_qnote: u64,
+}
+
+#[derive(Clone)]
+pub enum MidiEvent {
+    Note(NoteEvent),
+    Tempo(TempoEvent),
 }
 
 fn main() {
@@ -75,9 +88,7 @@ fn main() {
 
     let (track_events, time_info) = load_midi_file(pathstr);
 
-    let timed_midi_messages = midi_messages_from(track_events);
-
-    let notes = notes_in_channel(timed_midi_messages);
+    let events = notes_in_channel(track_events);
 
     // Create a channel for emitting midi events,
     // spawn a thread to handle the LED lights
@@ -85,7 +96,7 @@ fn main() {
     let (midi_s, midi_r) = channel::bounded(5);
     std::thread::spawn(move || light::run(midi_r));
 
-    match run(*output_device, notes, time_info.micros_per_clock(), midi_s) {
+    match run(*output_device, events, time_info, midi_s) {
         Ok(_) => (),
         Err(err) => println!("Error: {}", err.description()),
     }
@@ -101,22 +112,18 @@ fn main() {
 /// - https://stackoverflow.com/questions/5288593/how-to-convert-midi-timeline-into-the-actual-timeline-that-should-be-played/5297236#5297236
 /// - http://www.deluge.co/?q=midi-tempo-bpm
 pub struct MidiTimeInfo {
-    pub micros_per_qnote: u64,
-    //pub num_32nd_notes_per_24_ticks: u8, // usually 8
-    //pub clocks_per_tick: u8,             // usually 24
     pub division: i16,
 }
 
 impl MidiTimeInfo {
-    pub fn micros_per_clock(self: &Self) -> u64 {
-        (self.micros_per_qnote as f32 / self.division as f32) as u64
+    pub fn micros_per_clock(self: &Self, micros_per_qnote: u64) -> u64 {
+        (micros_per_qnote as f32 / self.division as f32) as u64
     }
 }
 
-fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
+fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
     let mut events: Vec<TrackEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
 
-    let mut micros_per_qnote: Option<u64> = None;
     let mut division: i16 = 0;
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
@@ -129,26 +136,6 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
             division = smf.division;
             for track in smf.tracks.iter() {
                 for event in track.events.iter() {
-                    if let rimd::Event::Meta(rimd::MetaEvent {
-                        command: rimd::MetaCommand::TempoSetting,
-                        length: _,
-                        data: ref micros_per_qnote_vec,
-                    }) = event.event
-                    {
-                        let mpq = data_as_u64(micros_per_qnote_vec);
-                        println!("TempoSetting Meta: micros per qnote = {:?}", mpq);
-                        micros_per_qnote = Some(mpq)
-                    }
-
-                    if let rimd::Event::Meta(rimd::MetaEvent {
-                        command: rimd::MetaCommand::SMPTEOffset,
-                        length: _,
-                        data: _,
-                    }) = event.event
-                    {
-                        println!("{:?}", event.event);
-                    }
-
                     events.push(event.clone());
                 }
             }
@@ -169,85 +156,92 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
         },
     };
 
-    const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
-    (
-        events,
-        MidiTimeInfo {
-            micros_per_qnote: micros_per_qnote.unwrap_or(DEFAULT_MICROS_PER_QNOTE),
-            division: division,
-        },
-    )
+    (events, division)
 }
 
-#[derive(Debug)]
-pub struct TimedMidiMessage {
-    pub vtime: u64,
-    pub data: Vec<u8>,
-}
-
-fn midi_messages_from(track_events: Vec<TrackEvent>) -> Vec<TimedMidiMessage> {
-    let mut midi_messages: Vec<TimedMidiMessage> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
-
-    for te in track_events {
-        match te {
-            TrackEvent { vtime, event } => match event {
-                Event::Midi(m) => {
-                    let t = TimedMidiMessage {
-                        vtime,
-                        data: m.data,
-                    };
-                    midi_messages.push(t)
-                }
-                Event::Meta(_m) => {}
-            },
-        }
-    }
-
-    midi_messages
-}
-
-fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNoteEvent> {
+fn notes_in_channel(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
     let mut time: u64 = 0;
-    let mut notes: Vec<MidiNoteEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
-    for msg in midi_messages {
-        time += msg.vtime;
-        if let Some(cn) = ChannelEvent::new(msg.data[0]) {
-            let e = MidiNoteEvent {
-                channel_event: cn,
+    let mut events: Vec<MidiEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
+    for te in track_events {
+        time += te.vtime;
+
+        match te {
+            TrackEvent {
+                vtime,
+                event: rimd::Event::Midi(msg),
+            } => {
+                if let Some(cn) = ChannelEvent::new(msg.data[0]) {
+                    let e = NoteEvent {
+                        channel_event: cn,
+                        time: time,
+                        vtime: vtime,
+                        note: msg.data[1],
+                        velocity: msg.data[2],
+                    };
+                    events.push(MidiEvent::Note(e));
+                }
+            }
+            TrackEvent {
+                vtime,
+                event:
+                    rimd::Event::Meta(rimd::MetaEvent {
+                        command: rimd::MetaCommand::TempoSetting,
+                        length: _,
+                        data,
+                    }),
+            } => events.push(MidiEvent::Tempo(TempoEvent {
                 time: time,
-                vtime: msg.vtime,
-                note: msg.data[1],
-                velocity: msg.data[2],
-            };
-            notes.push(e)
+                vtime: vtime,
+                micros_per_qnote: data_as_u64(&data),
+            })),
+            _ => (),
         }
     }
 
-    notes
+    events
 }
 
 fn run(
     output_device: usize,
-    notes: Vec<MidiNoteEvent>,
-    micros_per_tick: u64,
-    midi_sender: channel::Sender<MidiNoteEvent>,
+    notes: Vec<MidiEvent>,
+    division: i16,
+    midi_sender: channel::Sender<NoteEvent>,
 ) -> Result<(), Box<Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
     let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
 
+    /*if let rimd::Event::Meta(rimd::MetaEvent {
+                        command: rimd::MetaCommand::TempoSetting,
+                        length: _,
+                        data: ref micros_per_qnote_vec,
+                    }) = event.event
+                    {
+                        let mpq = data_as_u64(micros_per_qnote_vec);
+                        println!("TempoSetting Meta: micros per qnote = {:?}", mpq);
+                        micros_per_qnote = Some(mpq)
+                    }*/
+
+    const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
+    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
+
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
-        let mut play_note = |midi: MidiNoteEvent| {
-            sleep(Duration::from_micros(midi.vtime * micros_per_tick));
+        let mut play_note = |midi: MidiEvent| match midi {
+            MidiEvent::Tempo(tempo_change) => {
+                micros_per_tick = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
+            }
+            MidiEvent::Note(note) => {
+                sleep(Duration::from_micros(note.vtime * micros_per_tick));
 
-            midi_sender.send(midi.clone());
+                midi_sender.send(note.clone());
 
-            let _ = match midi.channel_event {
-                ChannelEvent::ChannelOn(c) => conn_out.send(&[c, midi.note, midi.velocity]),
-                ChannelEvent::ChannelOff(c) => conn_out.send(&[c, midi.note, midi.velocity]),
-            };
+                let _ = match note.channel_event {
+                    ChannelEvent::ChannelOn(c) => conn_out.send(&[c, note.note, note.velocity]),
+                    ChannelEvent::ChannelOff(c) => conn_out.send(&[c, note.note, note.velocity]),
+                };
+            }
         };
 
         for n in notes {

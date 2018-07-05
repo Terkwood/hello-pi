@@ -28,11 +28,11 @@ use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
 use ChannelEvent;
 use ChannelEvent::{ChannelOff, ChannelOn};
-use MidiNoteEvent;
+use NoteEvent;
 use CHANNEL_OFF_FIRST;
 use CHANNEL_ON_FIRST;
 
-pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
+pub fn run(output_r: channel::Receiver<NoteEvent>) {
     let mut settings = config::Config::default();
     settings
             // Add in `./Settings.toml`
@@ -71,14 +71,14 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
         let rc = r.clone();
         let maybe_channel_note = rc.map(|mne| ChannelNote::new(mne.channel_event, mne.note));
         match r {
-            &Some(MidiNoteEvent {
+            &Some(NoteEvent {
                 channel_event: ChannelOff(_c),
                 time: _,
                 vtime: _,
                 note,
                 velocity: _,
             })
-            | &Some(MidiNoteEvent {
+            | &Some(NoteEvent {
                 channel_event: ChannelOn(_c),
                 time: _,
                 vtime: _,
@@ -99,7 +99,7 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                     led_to_cn.remove(&u);
                 }
             }
-            &Some(MidiNoteEvent {
+            &Some(NoteEvent {
                 channel_event: ChannelOn(c),
                 time: _,
                 vtime: _,
