@@ -88,7 +88,7 @@ fn main() {
 
     let (track_events, time_info) = load_midi_file(pathstr);
 
-    let events = notes_in_channel(track_events);
+    let events = transform_events(track_events);
 
     // Create a channel for emitting midi events,
     // spawn a thread to handle the LED lights
@@ -159,7 +159,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
     (events, division)
 }
 
-fn notes_in_channel(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
+fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
     let mut time: u64 = 0;
     let mut events: Vec<MidiEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
     for te in track_events {
