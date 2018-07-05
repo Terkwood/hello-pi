@@ -3,7 +3,7 @@ extern crate midir;
 extern crate rimd;
 
 use midir::MidiOutput;
-use rimd::{Event, SMFError, TrackEvent, SMF};
+use rimd::{SMFError, TrackEvent, SMF};
 use std::env;
 use std::error::Error;
 use std::path::Path;
@@ -132,7 +132,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
             /// then it represents the units per beat. For example, +96 would
             /// mean 96 ticks per beat. If the value is negative, delta times
             /// are in SMPTE compatible units.
-            println!("division: {}", smf.division);
+            println!("Division Header: {}", smf.division);
             division = smf.division;
             for track in smf.tracks.iter() {
                 for event in track.events.iter() {
@@ -211,17 +211,6 @@ fn run(
 
     let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
 
-    /*if let rimd::Event::Meta(rimd::MetaEvent {
-                        command: rimd::MetaCommand::TempoSetting,
-                        length: _,
-                        data: ref micros_per_qnote_vec,
-                    }) = event.event
-                    {
-                        let mpq = data_as_u64(micros_per_qnote_vec);
-                        println!("TempoSetting Meta: micros per qnote = {:?}", mpq);
-                        micros_per_qnote = Some(mpq)
-                    }*/
-
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
     let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
 
@@ -230,7 +219,9 @@ fn run(
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
         let mut play_note = |midi: MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
-                micros_per_tick = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
+                let u = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
+                println!("Update micros per tick: {}", u);
+                micros_per_tick = u;
             }
             MidiEvent::Note(note) => {
                 sleep(Duration::from_micros(note.vtime * micros_per_tick));
