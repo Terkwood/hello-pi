@@ -95,7 +95,7 @@ Although it often results in MIDI files with strange sound artifacts, one can us
 
 For instance, after converting the MP3 for [Rachmaninov's Prelude in C Sharp Minor, Op 3](https://www.gutenberg.org/ebooks/10175) to a WAV, we used the following settings in `AmazingMIDI` in order to generate a [noisy but somewhat accurate MIDI output file](resources/rach3.mid):
 
-![Rach 3 to MIDI](doc/rach3_to_midi.png)
+![Rach Prelude to MIDI](doc/rach_to_midi.png)
 
 ## Further Reading
 
