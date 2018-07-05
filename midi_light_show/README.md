@@ -87,18 +87,19 @@ The easiest way to have your Raspberry Pi output sound in a timely fashion is to
 
 ### Transforming MP3s to MIDI
 
-The pipeline we used to transform MP3s to MIDI was as follows:
+Although it often results in MIDI files with strange sound artifacts, one can use the following pipeline to transform MP3s to MIDI was as follows:
 
 * Use [Audacity](https://www.audacityteam.org/) to convert the MP3 to a WAV.
+* (optional) Use Audacity to perform Noise Reduction on the WAV file (helpful if there's a hiss or a hum in the recording): https://www.podfeet.com/blog/recording/how-to-remove-noise-with-audacity/
 * Use [AmazingMIDI](http://www.pluto.dti.ne.jp/~araki/amazingmidi/) to convert the WAV to a MIDI.
 
-For instance, after converting the MP3 for [Rachmaninov's Prelude in C Sharp Minor, Op 3](https://www.gutenberg.org/ebooks/10175) to a WAV, we used the following settings in `AmazingMIDI` in order to generate a [pleasing MIDI output file](resources/rach3.mid):
+For instance, after converting the MP3 for [Rachmaninov's Prelude in C Sharp Minor, Op 3](https://www.gutenberg.org/ebooks/10175) to a WAV, we used the following settings in `AmazingMIDI` in order to generate a [noisy but somewhat accurate MIDI output file](resources/rach3.mid):
 
 ![Rach 3 to MIDI](doc/rach3_to_midi.png)
 
 ## Further Reading
 
-* [MIDI EVent Table](http://www.onicos.com/staff/iz/formats/midi-event.html)
+* [MIDI Event Table](http://www.onicos.com/staff/iz/formats/midi-event.html)
 * [The MIDI File Format](https://www.csie.ntu.edu.tw/~r92092/ref/midi/)
 * [Ted's Linux MIDI Guide](http://tedfelix.com/linux/linux-midi.html)
 * [The Linux MIDI-HOWTO](http://tldp.org/HOWTO/MIDI-HOWTO-10.html)
@@ -114,8 +115,6 @@ The availability of the following audio libraries is greatly appreciated:
 * Big thanks to [rtmidi library](https://github.com/thestk/rtmidi).
 
 Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to an audio device on Raspberry Pi.
-
-We greatly appreciate the availability of [Project Gutenberg](https://www.gutenberg.org/wiki/Main_Page), which provides most of its content with [very few restrictions](https://www.gutenberg.org/wiki/Gutenberg:Permission_How-To).  The Rach 3 MIDI file in this project was derived from the MP3 audio available here.
 
 ### Audio and MIDI Resources
 
