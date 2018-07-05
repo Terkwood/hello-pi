@@ -102,30 +102,14 @@ fn main() {
 /// - http://www.deluge.co/?q=midi-tempo-bpm
 pub struct MidiTimeInfo {
     pub micros_per_qnote: u64,
-    pub num_32nd_notes_per_24_ticks: u8, // usually 8
-    pub clocks_per_tick: u8,             // usually 24
+    //pub num_32nd_notes_per_24_ticks: u8, // usually 8
+    //pub clocks_per_tick: u8,             // usually 24
+    pub division: i16,
 }
 
 impl MidiTimeInfo {
-    /// See documentation in rimd.rs:
-    /// > The parameter `clocks_per_tick` is the number of MIDI Clocks per metronome tick.
-    /// > Normally, there are 24 MIDI Clocks per quarter note.
-    /// > However, some software allows this to be set by the user.
-    /// > The parameter `num_32nd_notes_per_24_clocks` defines this in terms of the
-    /// > number of 1/32 notes which make up the usual 24 MIDI Clocks
-    /// > (the 'standard' quarter note).  8 is standard
-
     pub fn micros_per_clock(self: &Self) -> u64 {
-        println!(
-            "micros per clock: {} / {} = {}",
-            self.micros_per_qnote as f32,
-            self.clocks_per_tick as f32,
-            (self.micros_per_qnote as f32 / self.clocks_per_tick as f32) as u64
-        );
-        // SO, THIS IS A ROUGH ESTIMATE
-        // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
-        // ...you should do more arithmetic.
-        (self.micros_per_qnote as f32 / self.clocks_per_tick as f32) as u64
+        (self.micros_per_qnote as f32 / self.division as f32) as u64
     }
 }
 
@@ -133,8 +117,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
     let mut events: Vec<TrackEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
 
     let mut micros_per_qnote: Option<u64> = None;
-    let mut num_32nd_notes_per_24_clocks: u8 = 8;
-    let mut clocks_per_tick: u8 = 24;
+    let mut division: i16 = 0;
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
         Ok(smf) => {
@@ -143,6 +126,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
             /// mean 96 ticks per beat. If the value is negative, delta times
             /// are in SMPTE compatible units.
             println!("division: {}", smf.division);
+            division = smf.division;
             for track in smf.tracks.iter() {
                 for event in track.events.iter() {
                     if let rimd::Event::Meta(rimd::MetaEvent {
@@ -172,8 +156,8 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
                     }) = event.event
                     {
                         println!("event: {:?}", event.event);
-                        clocks_per_tick = data[2];
-                        num_32nd_notes_per_24_clocks = data[3];
+                        //clocks_per_tick = data[2];
+                        //num_32nd_notes_per_24_clocks = data[3];
                     }
 
                     events.push(event.clone());
@@ -201,8 +185,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
         events,
         MidiTimeInfo {
             micros_per_qnote: micros_per_qnote.unwrap_or(DEFAULT_MICROS_PER_QNOTE),
-            clocks_per_tick: clocks_per_tick,
-            num_32nd_notes_per_24_ticks: num_32nd_notes_per_24_clocks,
+            division: division,
         },
     )
 }
