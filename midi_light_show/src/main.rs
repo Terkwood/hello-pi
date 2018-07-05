@@ -183,6 +183,9 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                     };
                     events.push(MidiEvent::Note(e));
                 } else {
+                    // You can find fun and interesting things like Damper Pedal (sustain)
+                    // Being turned on and off
+                    // See http://www.onicos.com/staff/iz/formats/midi-cntl.html
                     println!("How about this unknown track event: {:?}", te);
                 }
             }
