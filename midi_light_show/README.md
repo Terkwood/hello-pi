@@ -16,7 +16,7 @@ You can also choose an "extended" layout which uses additional LEDs, or specify 
 layout = "basic"   ## select which pin layout you want to use
 
 [pins]
-extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27]
+extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27, 8, 25, 17, 4, 3, 2]
 basic = [13, 6, 5, 7, 23, 18, 15, 14]
 ```
 
@@ -117,6 +117,8 @@ The availability of the following audio libraries is greatly appreciated:
 Thank you to [fluidsynth](http://www.fluidsynth.org/), which allowed us to send MIDI output to an audio device on Raspberry Pi.
 
 ### Audio and MIDI Resources
+
+[Wikipedia provides a delicious selection of classical MIDI music](https://commons.m.wikimedia.org/wiki/Category:MIDI_files_of_classical_music), most of which are in the public domain/licensed in a Creative Commons fashion, etc.
 
 We drew from MP3 audio found [at Project Gutenberg Music Category](https://www.gutenberg.org/browse/categories/3).
 
