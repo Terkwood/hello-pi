@@ -134,6 +134,9 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
             /// are in SMPTE compatible units.
             println!("Division Header: {}", smf.division);
             division = smf.division;
+            if division < 0 {
+                panic!("We don't know how to deal with negative Division Header values!  Failing.")
+            }
             for track in smf.tracks.iter() {
                 for event in track.events.iter() {
                     events.push(event.clone());
