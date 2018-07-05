@@ -99,6 +99,7 @@ fn main() {
 /// Also:
 /// - http://www.recordingblogs.com/wiki/time-division-of-a-midi-file
 /// - https://stackoverflow.com/questions/5288593/how-to-convert-midi-timeline-into-the-actual-timeline-that-should-be-played/5297236#5297236
+/// - http://www.deluge.co/?q=midi-tempo-bpm
 pub struct MidiTimeInfo {
     pub micros_per_qnote: u64,
     pub num_32nd_notes_per_24_ticks: u8, // usually 8
@@ -137,6 +138,11 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
         Ok(smf) => {
+            /// The unit of time for delta timing. If the value is positive,
+            /// then it represents the units per beat. For example, +96 would
+            /// mean 96 ticks per beat. If the value is negative, delta times
+            /// are in SMPTE compatible units.
+            println!("division: {}", smf.division);
             for track in smf.tracks.iter() {
                 for event in track.events.iter() {
                     if let rimd::Event::Meta(rimd::MetaEvent {
