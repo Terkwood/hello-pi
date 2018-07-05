@@ -34,6 +34,7 @@ impl ChannelEvent {
         } else if channel >= CHANNEL_ON_FIRST && channel <= CHANNEL_ON_LAST {
             Some(ChannelEvent::ChannelOn(channel))
         } else {
+            println!("Couldn't figure out a ChannelEvent from {}", channel);
             None
         }
     }
