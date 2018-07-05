@@ -3,7 +3,7 @@ extern crate midir;
 extern crate rimd;
 
 use midir::MidiOutput;
-use rimd::{Event, SMFError, TrackEvent, SMF};
+use rimd::{SMFError, TrackEvent, SMF};
 use std::env;
 use std::error::Error;
 use std::path::Path;
@@ -22,9 +22,9 @@ pub enum ChannelEvent {
 
 // midi channel addresses
 // from http://www.onicos.com/staff/iz/formats/midi-event.html
-const CHANNEL_OFF_FIRST: u8 = 0x80;
+pub const CHANNEL_OFF_FIRST: u8 = 0x80;
 const CHANNEL_OFF_LAST: u8 = 0x8F;
-const CHANNEL_ON_FIRST: u8 = 0x90;
+pub const CHANNEL_ON_FIRST: u8 = 0x90;
 const CHANNEL_ON_LAST: u8 = 0x9F;
 
 impl ChannelEvent {
@@ -42,12 +42,25 @@ impl ChannelEvent {
 /// These are read from the MIDI file and
 /// will be used to produce audio.
 #[derive(Debug, Clone)]
-pub struct MidiNoteEvent {
+pub struct NoteEvent {
     channel_event: ChannelEvent,
     time: u64,
     vtime: u64,
     note: u8,
     velocity: u8,
+}
+
+#[derive(Clone)]
+pub struct TempoEvent {
+    time: u64,
+    vtime: u64,
+    micros_per_qnote: u64,
+}
+
+#[derive(Clone)]
+pub enum MidiEvent {
+    Note(NoteEvent),
+    Tempo(TempoEvent),
 }
 
 fn main() {
@@ -75,9 +88,7 @@ fn main() {
 
     let (track_events, time_info) = load_midi_file(pathstr);
 
-    let timed_midi_messages = midi_messages_from(track_events);
-
-    let notes = notes_in_channel(timed_midi_messages);
+    let events = transform_events(track_events);
 
     // Create a channel for emitting midi events,
     // spawn a thread to handle the LED lights
@@ -85,7 +96,7 @@ fn main() {
     let (midi_s, midi_r) = channel::bounded(5);
     std::thread::spawn(move || light::run(midi_r));
 
-    match run(*output_device, notes, time_info.micros_per_clock(), midi_s) {
+    match run(*output_device, events, time_info, midi_s) {
         Ok(_) => (),
         Err(err) => println!("Error: {}", err.description()),
     }
@@ -96,60 +107,38 @@ fn main() {
 ///
 /// The Short answer:  Usually 24
 /// The Long answer:   It varies based on num_32nd_notes_per_24_ticks    
+/// Also:
+/// - http://www.recordingblogs.com/wiki/time-division-of-a-midi-file
+/// - https://stackoverflow.com/questions/5288593/how-to-convert-midi-timeline-into-the-actual-timeline-that-should-be-played/5297236#5297236
+/// - http://www.deluge.co/?q=midi-tempo-bpm
 pub struct MidiTimeInfo {
-    pub micros_per_qnote: u64,
-    pub num_32nd_notes_per_24_ticks: u8, // usually 8
-    pub clocks_per_tick: u8,             // usually 24
+    pub division: i16,
 }
 
 impl MidiTimeInfo {
-    /// See documentation in rimd.rs:
-    /// > The parameter `clocks_per_tick` is the number of MIDI Clocks per metronome tick.
-    /// > Normally, there are 24 MIDI Clocks per quarter note.
-    /// > However, some software allows this to be set by the user.
-    /// > The parameter `num_32nd_notes_per_24_clocks` defines this in terms of the
-    /// > number of 1/32 notes which make up the usual 24 MIDI Clocks
-    /// > (the 'standard' quarter note).  8 is standard
-
-    pub fn micros_per_clock(self: &Self) -> u64 {
-        // SO, THIS IS A ROUGH ESTIMATE
-        // ...and if `num_32nd_notes_per_24_ticks` is set in your MIDI file,
-        // ...you should do more arithmetic.
-        (self.micros_per_qnote as f32 / 32 as f32 / 12 as f32) as u64
+    pub fn micros_per_clock(self: &Self, micros_per_qnote: u64) -> u64 {
+        (micros_per_qnote as f32 / self.division as f32) as u64
     }
 }
 
-fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
+fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
     let mut events: Vec<TrackEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
 
-    let mut micros_per_qnote: Option<u64> = None;
-    let mut num_32nd_notes_per_24_clocks: u8 = 8;
-    let mut clocks_per_tick: u8 = 24;
+    let mut division: i16 = 0;
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
         Ok(smf) => {
+            /// The unit of time for delta timing. If the value is positive,
+            /// then it represents the units per beat. For example, +96 would
+            /// mean 96 ticks per beat. If the value is negative, delta times
+            /// are in SMPTE compatible units.
+            println!("Division Header: {}", smf.division);
+            division = smf.division;
+            if division < 0 {
+                panic!("We don't know how to deal with negative Division Header values!  Failing.")
+            }
             for track in smf.tracks.iter() {
                 for event in track.events.iter() {
-                    if let rimd::Event::Meta(rimd::MetaEvent {
-                        command: rimd::MetaCommand::TempoSetting,
-                        length: _,
-                        data: ref micros_per_qnote_vec,
-                    }) = event.event
-                    {
-                        // so meta
-                        micros_per_qnote = Some(data_as_u64(micros_per_qnote_vec))
-                    }
-
-                    if let rimd::Event::Meta(rimd::MetaEvent {
-                        command: rimd::MetaCommand::TimeSignature,
-                        length: _,
-                        ref data,
-                    }) = event.event
-                    {
-                        clocks_per_tick = data[2];
-                        num_32nd_notes_per_24_clocks = data[3];
-                    }
-
                     events.push(event.clone());
                 }
             }
@@ -170,84 +159,88 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, MidiTimeInfo) {
         },
     };
 
-    const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
-    (
-        events,
-        MidiTimeInfo {
-            micros_per_qnote: micros_per_qnote.unwrap_or(DEFAULT_MICROS_PER_QNOTE),
-            clocks_per_tick: clocks_per_tick,
-            num_32nd_notes_per_24_ticks: num_32nd_notes_per_24_clocks,
-        },
-    )
+    (events, division)
 }
 
-#[derive(Debug)]
-pub struct TimedMidiMessage {
-    pub vtime: u64,
-    pub data: Vec<u8>,
-}
-
-fn midi_messages_from(track_events: Vec<TrackEvent>) -> Vec<TimedMidiMessage> {
-    let mut midi_messages: Vec<TimedMidiMessage> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
-
-    for te in track_events {
-        match te {
-            TrackEvent { vtime, event } => match event {
-                Event::Midi(m) => midi_messages.push(TimedMidiMessage {
-                    vtime,
-                    data: m.data,
-                }),
-                Event::Meta(_m) => {}
-            },
-        }
-    }
-
-    midi_messages
-}
-
-fn notes_in_channel(midi_messages: Vec<TimedMidiMessage>) -> Vec<MidiNoteEvent> {
+fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
     let mut time: u64 = 0;
-    let mut notes: Vec<MidiNoteEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
-    for msg in midi_messages {
-        time += msg.vtime;
-        if let Some(cn) = ChannelEvent::new(msg.data[0]) {
-            notes.push(MidiNoteEvent {
-                channel_event: cn,
+    let mut events: Vec<MidiEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
+    for te in track_events {
+        time += te.vtime;
+
+        match &te {
+            TrackEvent {
+                vtime,
+                event: rimd::Event::Midi(msg),
+            } => {
+                if let Some(cn) = ChannelEvent::new(msg.data[0]) {
+                    let e = NoteEvent {
+                        channel_event: cn,
+                        time: time,
+                        vtime: *vtime,
+                        note: msg.data[1],
+                        velocity: msg.data[2],
+                    };
+                    events.push(MidiEvent::Note(e));
+                } else {
+                    // You can find fun and interesting things like Damper Pedal (sustain)
+                    // Being turned on and off
+                    // See http://www.onicos.com/staff/iz/formats/midi-cntl.html
+                    println!("How about this unknown track event: {:?}", te);
+                }
+            }
+            TrackEvent {
+                vtime,
+                event:
+                    rimd::Event::Meta(rimd::MetaEvent {
+                        command: rimd::MetaCommand::TempoSetting,
+                        length: _,
+                        data,
+                    }),
+            } => events.push(MidiEvent::Tempo(TempoEvent {
                 time: time,
-                vtime: msg.vtime,
-                note: msg.data[1],
-                velocity: msg.data[2],
-            })
+                vtime: *vtime,
+                micros_per_qnote: data_as_u64(&data),
+            })),
+            _ => (),
         }
     }
 
-    notes
+    events
 }
 
 fn run(
     output_device: usize,
-    notes: Vec<MidiNoteEvent>,
-    micros_per_tick: u64,
-    midi_sender: channel::Sender<MidiNoteEvent>,
+    notes: Vec<MidiEvent>,
+    division: i16,
+    midi_sender: channel::Sender<NoteEvent>,
 ) -> Result<(), Box<Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
     let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
 
-    println!("[ [ Light Show in 5 sec ] ] ");
-    sleep(Duration::from_secs(5));
+    const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
+    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
+
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
-        let mut play_note = |midi: MidiNoteEvent| {
-            sleep(Duration::from_micros(midi.vtime * micros_per_tick));
+        let mut play_note = |midi: MidiEvent| match midi {
+            MidiEvent::Tempo(tempo_change) => {
+                let u = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
+                println!("Update micros per tick: {}", u);
+                micros_per_tick = u;
+            }
+            MidiEvent::Note(note) => {
+                sleep(Duration::from_micros(note.vtime * micros_per_tick));
 
-            midi_sender.send(midi.clone());
+                midi_sender.send(note.clone());
 
-            let _ = match midi.channel_event {
-                ChannelEvent::ChannelOn(c) => conn_out.send(&[c, midi.note, midi.velocity]),
-                ChannelEvent::ChannelOff(c) => conn_out.send(&[c, midi.note, midi.velocity]),
-            };
+                let _ = match note.channel_event {
+                    ChannelEvent::ChannelOn(c) => conn_out.send(&[c, note.note, note.velocity]),
+                    ChannelEvent::ChannelOff(c) => conn_out.send(&[c, note.note, note.velocity]),
+                };
+            }
         };
 
         for n in notes {

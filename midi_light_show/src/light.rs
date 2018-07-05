@@ -26,10 +26,13 @@ extern crate wiringpi;
 
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
+use ChannelEvent;
 use ChannelEvent::{ChannelOff, ChannelOn};
-use MidiNoteEvent;
+use NoteEvent;
+use CHANNEL_OFF_FIRST;
+use CHANNEL_ON_FIRST;
 
-pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
+pub fn run(output_r: channel::Receiver<NoteEvent>) {
     let mut settings = config::Config::default();
     settings
             // Add in `./Settings.toml`
@@ -61,38 +64,42 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
 
     // key: index from 0..8 corresponding to the physical order of the LEDs
     // value: MIDI channel
-    let mut led_to_midi_channel: HashMap<usize, u8> = HashMap::new();
+    let mut led_to_cn: HashMap<usize, ChannelNote> = HashMap::new();
 
     loop {
-        match output_r.recv() {
-            Some(MidiNoteEvent {
-                channel_event: ChannelOff(c),
+        let r = &output_r.recv();
+        let rc = r.clone();
+        let maybe_channel_note = rc.map(|mne| ChannelNote::new(mne.channel_event, mne.note));
+        match r {
+            &Some(NoteEvent {
+                channel_event: ChannelOff(_c),
                 time: _,
                 vtime: _,
-                note: _,
+                note,
                 velocity: _,
             })
-            | Some(MidiNoteEvent {
-                channel_event: ChannelOn(c),
+            | &Some(NoteEvent {
+                channel_event: ChannelOn(_c),
                 time: _,
                 vtime: _,
-                note: _,
+                note,
                 velocity: 0,
             }) => {
+                let midi_chan = maybe_channel_note.unwrap().channel;
                 let mut unset: Vec<usize> = vec![];
-                for (led, lchan) in &led_to_midi_channel {
-                    if c == *lchan {
+
+                for (led, lcn) in &led_to_cn {
+                    if note == lcn.note && midi_chan == lcn.channel {
                         // turn off the LED
                         led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
                         unset.push(*led);
-                        println!("LOW  current on LED #{} (pin {})", *led, pins[*led]);
                     }
                 }
                 for u in unset {
-                    led_to_midi_channel.remove(&u);
+                    led_to_cn.remove(&u);
                 }
             }
-            Some(MidiNoteEvent {
+            &Some(NoteEvent {
                 channel_event: ChannelOn(c),
                 time: _,
                 vtime: _,
@@ -102,16 +109,35 @@ pub fn run(output_r: channel::Receiver<MidiNoteEvent>) {
                 let led = midi_note_to_led(note, num_leds);
                 // only mess with this note if it's
                 // not being used by another channel
-                match led_to_midi_channel.entry(led) {
+                match led_to_cn.entry(led) {
                     Vacant(entry) => {
                         led_pin_outs[led].digital_write(wiringpi::pin::Value::High);
-                        entry.insert(c);
-                        println!("HIGH current on LED #{} (pin {})", led, pins[led]);
+                        entry.insert(ChannelNote::new(ChannelOn(c), note));
                     }
                     Occupied(_entry) => (),
                 }
             }
             None => {}
+        }
+    }
+}
+
+struct ChannelNote {
+    channel: u8,
+    note: u8,
+}
+
+impl ChannelNote {
+    fn new(channel_event: ChannelEvent, note: u8) -> ChannelNote {
+        match channel_event {
+            ChannelOn(c) => ChannelNote {
+                channel: c - CHANNEL_ON_FIRST,
+                note,
+            },
+            ChannelOff(c) => ChannelNote {
+                channel: c - CHANNEL_OFF_FIRST,
+                note,
+            },
         }
     }
 }
