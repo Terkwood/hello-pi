@@ -34,7 +34,6 @@ impl ChannelEvent {
         } else if channel >= CHANNEL_ON_FIRST && channel <= CHANNEL_ON_LAST {
             Some(ChannelEvent::ChannelOn(channel))
         } else {
-            println!("Couldn't figure out a ChannelEvent from {}", channel);
             None
         }
     }
@@ -169,7 +168,7 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
     for te in track_events {
         time += te.vtime;
 
-        match te {
+        match &te {
             TrackEvent {
                 vtime,
                 event: rimd::Event::Midi(msg),
@@ -178,11 +177,13 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                     let e = NoteEvent {
                         channel_event: cn,
                         time: time,
-                        vtime: vtime,
+                        vtime: *vtime,
                         note: msg.data[1],
                         velocity: msg.data[2],
                     };
                     events.push(MidiEvent::Note(e));
+                } else {
+                    println!("How about this unknown track event: {:?}", te);
                 }
             }
             TrackEvent {
@@ -195,7 +196,7 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                     }),
             } => events.push(MidiEvent::Tempo(TempoEvent {
                 time: time,
-                vtime: vtime,
+                vtime: *vtime,
                 micros_per_qnote: data_as_u64(&data),
             })),
             _ => (),
