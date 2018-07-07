@@ -49,9 +49,9 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
 
     let led_pin_outs = {
         let mut lpos = Vec::new();
-        // track some pins
+        // setup software-driven pulse width modulation pins
         for &p in pins {
-            lpos.push(gpio.output_pin(p));
+            lpos.push(gpio.soft_pwm_pin(p));
         }
 
         lpos
@@ -59,7 +59,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
 
     // clear everything when you start up
     for po in &led_pin_outs {
-        po.digital_write(wiringpi::pin::Value::Low);
+        po.pwm_write(0);
     }
 
     // key: index from 0..8 corresponding to the physical order of the LEDs
@@ -91,7 +91,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                 for (led, lcn) in &led_to_cn {
                     if note == lcn.note && midi_chan == lcn.channel {
                         // turn off the LED
-                        led_pin_outs[*led].digital_write(wiringpi::pin::Value::Low);
+                        led_pin_outs[*led].pwm_write(0);
                         unset.push(*led);
                     }
                 }
@@ -104,14 +104,16 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                 time: _,
                 vtime: _,
                 note,
-                velocity: _,
+                velocity,
             }) => {
                 let led = midi_note_to_led(note, num_leds);
+
                 // only mess with this note if it's
                 // not being used by another channel
                 match led_to_cn.entry(led) {
                     Vacant(entry) => {
-                        led_pin_outs[led].digital_write(wiringpi::pin::Value::High);
+                        // PWM duty cycle ranges from 0 to 100
+                        led_pin_outs[led].pwm_write(velocity as i32);
                         entry.insert(ChannelNote::new(ChannelOn(c), note));
                     }
                     Occupied(_entry) => (),
