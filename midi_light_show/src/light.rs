@@ -58,13 +58,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
     let led_pin_outs: Vec<Box<MusicPin>> = {
         let mut lpos: Vec<Box<MusicPin>> = Vec::new();
         for &p in pins {
-            if use_pwm {
-                // setup software-driven pulse width modulation pin
-                lpos.push(Box::new(SoftPwmMusicPin::new(gpio, p)))
-            } else {
-                // setup simple on/off for each pin
-                lpos.push(Box::new(DigitalMusicPin::new(gpio, p)))
-            }
+            lpos.push(MusicPin::new(use_pwm, gpio, p))
         }
 
         lpos
@@ -183,6 +177,22 @@ modulo_signed_ext_impl! { i8 i16 i32 i64 }
 
 trait MusicPin {
     fn write(&self, velocity: i32);
+}
+
+/// This constructor will generate the appropriate type
+/// of pin based on whether you want PWM or not
+impl MusicPin {
+    fn new(
+        pwm: bool,
+        gpio: &wiringpi::WiringPi<wiringpi::pin::Gpio>,
+        pin_num: u16,
+    ) -> Box<MusicPin> {
+        if pwm {
+            Box::new(SoftPwmMusicPin::new(gpio, pin_num))
+        } else {
+            Box::new(DigitalMusicPin::new(gpio, pin_num))
+        }
+    }
 }
 
 struct DigitalMusicPin {
