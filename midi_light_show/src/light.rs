@@ -57,11 +57,12 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
 
     let led_pin_outs: Vec<Box<MusicPin>> = {
         let mut lpos: Vec<Box<MusicPin>> = Vec::new();
-        // setup software-driven pulse width modulation pins
         for &p in pins {
             if use_pwm {
+                // setup software-driven pulse width modulation pin
                 lpos.push(Box::new(SoftPwmMusicPin::new(gpio, p)))
             } else {
+                // setup simple on/off for each pin
                 lpos.push(Box::new(DigitalMusicPin::new(gpio, p)))
             }
         }
@@ -219,6 +220,10 @@ impl SoftPwmMusicPin {
     }
 }
 
+/// By using the wiringpi interface to software PWM,
+/// we can vary the brightness of the LED based on
+/// the note velocity.
+/// See https://en.wikipedia.org/wiki/Pulse-width_modulation
 impl MusicPin for SoftPwmMusicPin {
     fn write(&self, velocity: i32) {
         self.pin.pwm_write(velocity)
