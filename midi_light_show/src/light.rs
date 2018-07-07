@@ -44,14 +44,26 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
         .unwrap();
     let num_leds: usize = pins.len();
 
-    // Setup wiringPi in GPIO mode (with original BCM numbering order)
-    let gpio = wiringpi::setup_gpio();
+    let use_pwm = settings.get::<bool>("pwm").unwrap();
+    let pwm_message = if use_pwm {
+        "Pulse Width Modulation (PWM)"
+    } else {
+        "Simple On/Off"
+    };
+    println!("Using {} for LED brightness", pwm_message);
 
-    let led_pin_outs = {
-        let mut lpos = Vec::new();
+    // Setup wiringPi in GPIO mode (with original BCM numbering order)
+    let gpio = &wiringpi::setup_gpio();
+
+    let led_pin_outs: Vec<Box<MusicPin>> = {
+        let mut lpos: Vec<Box<MusicPin>> = Vec::new();
         // setup software-driven pulse width modulation pins
         for &p in pins {
-            lpos.push(gpio.soft_pwm_pin(p));
+            if use_pwm {
+                lpos.push(Box::new(SoftPwmMusicPin::new(gpio, p)))
+            } else {
+                lpos.push(Box::new(DigitalMusicPin::new(gpio, p)))
+            }
         }
 
         lpos
@@ -59,7 +71,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
 
     // clear everything when you start up
     for po in &led_pin_outs {
-        po.pwm_write(0);
+        po.write(0);
     }
 
     // key: index from 0..8 corresponding to the physical order of the LEDs
@@ -91,7 +103,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                 for (led, lcn) in &led_to_cn {
                     if note == lcn.note && midi_chan == lcn.channel {
                         // turn off the LED
-                        led_pin_outs[*led].pwm_write(0);
+                        led_pin_outs[*led].write(0);
                         unset.push(*led);
                     }
                 }
@@ -113,7 +125,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                 match led_to_cn.entry(led) {
                     Vacant(entry) => {
                         // PWM duty cycle ranges from 0 to 100
-                        led_pin_outs[led].pwm_write(velocity as i32);
+                        led_pin_outs[led].write(velocity as i32);
                         entry.insert(ChannelNote::new(ChannelOn(c), note));
                     }
                     Occupied(_entry) => (),
@@ -167,3 +179,48 @@ macro_rules! modulo_signed_ext_impl {
     )*)
 }
 modulo_signed_ext_impl! { i8 i16 i32 i64 }
+
+trait MusicPin {
+    fn write(&self, velocity: i32);
+}
+
+struct DigitalMusicPin {
+    pin: wiringpi::pin::OutputPin<wiringpi::pin::Gpio>,
+}
+
+impl DigitalMusicPin {
+    fn new(gpio: &wiringpi::WiringPi<wiringpi::pin::Gpio>, pin_num: u16) -> DigitalMusicPin {
+        DigitalMusicPin {
+            pin: gpio.output_pin(pin_num),
+        }
+    }
+}
+
+impl MusicPin for DigitalMusicPin {
+    fn write(&self, velocity: i32) {
+        let v = if velocity > 0 {
+            wiringpi::pin::Value::High
+        } else {
+            wiringpi::pin::Value::Low
+        };
+        self.pin.digital_write(v)
+    }
+}
+
+struct SoftPwmMusicPin {
+    pin: wiringpi::pin::SoftPwmPin<wiringpi::pin::Gpio>,
+}
+
+impl SoftPwmMusicPin {
+    fn new(gpio: &wiringpi::WiringPi<wiringpi::pin::Gpio>, pin_num: u16) -> SoftPwmMusicPin {
+        SoftPwmMusicPin {
+            pin: gpio.soft_pwm_pin(pin_num),
+        }
+    }
+}
+
+impl MusicPin for SoftPwmMusicPin {
+    fn write(&self, velocity: i32) {
+        self.pin.pwm_write(velocity)
+    }
+}

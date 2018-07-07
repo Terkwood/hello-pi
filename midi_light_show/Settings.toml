@@ -1,3 +1,5 @@
+pwm = true  # disable if you don't want lights to dim based on note velocity
+
 layout = "extended"
 
 [pins]
