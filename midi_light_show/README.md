@@ -41,6 +41,12 @@ aconnect -lio   #  and COUNT the number of MIDI related devices
 cargo run SOME_MIDI_FILE 1  # if fluidsynth is the only virtual midi device on your pi, it should have ID 1.  see above
 ```
 
+Most of the time, on Raspberry Pi, after enabling fluidsynth, you can omit the audio device ID:
+
+```sh
+cargo run SOME_MIDI_FILE
+```
+
 ## Building on Raspbian
 
 You need to install `libsound2`.
