@@ -33,6 +33,23 @@ We can see by reading http://www.onicos.com/staff/iz/formats/midi-event.html tha
 
 ## Notes on Midi Time Management
 
+### Division Header
+
+*OF PRIMARY IMPORTANCE* is realizing that the `division` header, of which there is a single instance present in every MIDI file, is critical for determining the relationship between MIDI ticks and microseconds.
+
+See these links for more info:
+- http://www.recordingblogs.com/wiki/time-division-of-a-midi-file
+- https://stackoverflow.com/questions/5288593/how-to-convert-midi-timeline-into-the-actual-timeline-that-should-be-played/5297236#5297236
+- http://www.deluge.co/?q=midi-tempo-bpm
+
+Once you can read the time signature settings (which give you `micros_per_quarter_note` for a given subsection of the MIDI file, you can establish a simple measure of microsecs to MIDI ticks with the following equation:
+
+```rust
+(micros_per_quarter_note as f32 / self.division as f32) as u64
+```
+
+### Time Signature Settings Miscellany
+
 MIDI Note On / Note Off events are ordered in time.  Each event contains a `delta_time` (vtime) field representing the time elapsed since the last event.
 
 In most cases, you can use the headers/metadata at the beginning of the file to establish a simple relationship between microseconds and "ticks" of the MIDI score.
