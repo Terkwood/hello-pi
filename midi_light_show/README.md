@@ -2,7 +2,7 @@
 
 This project implements a simple LED light and music show which can be executed on a Raspberry Pi.  You can provide a MIDI file and it will display a pleasing series of blinkenlights.
 
-[![Bach Goldberg Variations on Raspberry Pi](http://img.youtube.com/vi/9y1bVPCvIWE/0.jpg)](http://www.youtube.com/watch?v=9y1bVPCvIWE "YouTube: Prototype MIDI Light Show on Raspberry Pi")
+[![Youtube: Rustberry Pi Plays Erik Satie](http://img.youtube.com/vi/bh_AfZ8rU/0.jpg)](https://www.youtube.com/watch?v=M-bh_AfZ8rU "YouTube: Rustberry Pi Plays Erik Satie")
 
 ## Raspberry Pi LED Wiring
 
