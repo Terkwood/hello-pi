@@ -2,7 +2,7 @@
 
 Examples which demonstrate the use of Raspberry Pi and GPIO.
 
-Of interest are those written in [rust](rs).
+Of interest are those written in [rust](rs).  Among these, the [MIDI Light Show](midi_light_show) example is the most mature.  
 
 ## Breadboard Diagrams
 
