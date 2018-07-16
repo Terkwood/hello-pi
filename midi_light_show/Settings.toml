@@ -3,5 +3,5 @@ pwm = true  # disable if you don't want lights to dim based on note velocity
 layout = "extended"
 
 [pins]
-extended = [13, 6, 5, 7, 23, 18, 15, 14, 21, 26, 20, 16, 19, 11, 9, 10, 22, 27, 8, 25, 17, 4, 3, 2]
-basic = [13, 6, 5, 7, 23, 18, 15, 14]
+extended = [2, 3, 4, 17, 25, 8, 27, 22, 10, 9, 11, 19, 16, 20, 26, 21, 14, 15, 18, 23, 7, 5, 6, 13]
+basic = [14, 15, 18, 23, 7, 5, 6, 13]
