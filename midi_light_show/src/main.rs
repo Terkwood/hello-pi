@@ -222,6 +222,9 @@ fn run(
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
     let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
 
+    // enable reverb
+    conn_out.send(&[91, 100, 100]).unwrap();
+
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
