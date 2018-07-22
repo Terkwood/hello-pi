@@ -222,8 +222,13 @@ fn run(
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
     let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
 
-    // enable reverb
-    conn_out.send(&[91, 100, 0]).unwrap();
+    // sets volume 
+    conn_out.send(&[0xB0, 7, 127]).unwrap();
+
+    // infinite, maddening sustain 
+    //conn_out.send(&[0xB0, 64, 127]).unwrap();
+
+    conn_out.send(&[0xB0, 93, 127]).unwrap();
 
     println!("[ [   Show Starts Now   ] ]");
     {
