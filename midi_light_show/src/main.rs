@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 extern crate crossbeam_channel as channel;
 extern crate midir;
 extern crate rimd;
@@ -76,7 +77,8 @@ fn main() {
         Some(n) => {
             println!("User requested output device {}", n);
             str::parse(&n)
-        }.unwrap_or(0),
+        }
+        .unwrap_or(0),
         None => {
             println!(
                 "No output device specified, defaulting to {}",
