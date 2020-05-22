@@ -1,42 +1,23 @@
-//MIT License
-
-//Copyright (c) 2018 Terkwood
-
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions:
-
-//The above copyright notice and this permission notice shall be included in all
-//copies or substantial portions of the Software.
-
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//SOFTWARE.
-
+// SPDX-License-Identifier: MIT
 extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
+use crate::ChannelEvent;
+use crate::ChannelEvent::{ChannelOff, ChannelOn};
+use crate::NoteEvent;
+use crate::CHANNEL_OFF_FIRST;
+use crate::CHANNEL_ON_FIRST;
+use log::error;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
-use ChannelEvent;
-use ChannelEvent::{ChannelOff, ChannelOn};
-use NoteEvent;
-use CHANNEL_OFF_FIRST;
-use CHANNEL_ON_FIRST;
 
 pub fn run(output_r: channel::Receiver<NoteEvent>) {
     let mut settings = config::Config::default();
     settings
-            // Add in `./Settings.toml`
-            .merge(config::File::with_name("Settings")).unwrap();
+        // Add in `./Settings.toml`
+        .merge(config::File::with_name("Settings"))
+        .expect("settings");
 
     let layout_selection = settings.get::<String>("layout").unwrap();
     let pins = &settings
@@ -55,8 +36,8 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let gpio = &wiringpi::setup_gpio();
 
-    let led_pin_outs: Vec<Box<MusicPin>> = {
-        let mut lpos: Vec<Box<MusicPin>> = Vec::new();
+    let led_pin_outs: Vec<Box<dyn MusicPin>> = {
+        let mut lpos: Vec<Box<dyn MusicPin>> = Vec::new();
         for &p in pins {
             lpos.push(MusicPin::new(use_pwm, gpio, p))
         }
@@ -78,14 +59,14 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
         let rc = r.clone();
         let maybe_channel_note = rc.map(|mne| ChannelNote::new(mne.channel_event, mne.note));
         match r {
-            &Some(NoteEvent {
+            &Ok(NoteEvent {
                 channel_event: ChannelOff(_c),
                 time: _,
                 vtime: _,
                 note,
                 velocity: _,
             })
-            | &Some(NoteEvent {
+            | &Ok(NoteEvent {
                 channel_event: ChannelOn(_c),
                 time: _,
                 vtime: _,
@@ -106,7 +87,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                     led_to_cn.remove(&u);
                 }
             }
-            &Some(NoteEvent {
+            &Ok(NoteEvent {
                 channel_event: ChannelOn(c),
                 time: _,
                 vtime: _,
@@ -126,7 +107,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                     Occupied(_entry) => (),
                 }
             }
-            None => {}
+            &Err(e) => error!("err {}", e),
         }
     }
 }
@@ -181,12 +162,12 @@ trait MusicPin {
 
 /// This constructor will generate the appropriate type
 /// of pin based on whether you want PWM or not
-impl MusicPin {
+impl dyn MusicPin {
     fn new(
         pwm: bool,
         gpio: &wiringpi::WiringPi<wiringpi::pin::Gpio>,
         pin_num: u16,
-    ) -> Box<MusicPin> {
+    ) -> Box<dyn MusicPin> {
         if pwm {
             Box::new(SoftPwmMusicPin::new(gpio, pin_num))
         } else {

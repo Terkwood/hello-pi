@@ -1,7 +1,11 @@
+// SPDX-License-Identifier: MIT
 extern crate crossbeam_channel as channel;
+extern crate env_logger;
+extern crate log;
 extern crate midir;
 extern crate rimd;
 
+use log::{error, info, warn};
 use midir::MidiOutput;
 use rimd::{SMFError, TrackEvent, SMF};
 use std::env;
@@ -64,6 +68,7 @@ pub enum MidiEvent {
 }
 
 fn main() {
+    env_logger::init();
     let mut args: env::Args = env::args();
     args.next();
     let pathstr = &match args.next() {
@@ -76,7 +81,8 @@ fn main() {
         Some(n) => {
             println!("User requested output device {}", n);
             str::parse(&n)
-        }.unwrap_or(0),
+        }
+        .unwrap_or(0),
         None => {
             println!(
                 "No output device specified, defaulting to {}",
@@ -98,7 +104,7 @@ fn main() {
 
     match run(*output_device, events, time_info, midi_s) {
         Ok(_) => (),
-        Err(err) => println!("Error: {}", err.description()),
+        Err(err) => println!("Error: {}", err.to_string()),
     }
 }
 
@@ -121,18 +127,21 @@ impl MidiTimeInfo {
     }
 }
 
-fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
+// The unit of time for delta timing. If the value is positive,
+// then it represents the units per beat. For example, +96 would
+// mean 96 ticks per beat. If the value is negative, delta times
+// are in SMPTE compatible units.
+#[derive(Copy, Clone)]
+pub struct DeltaTiming(pub i16);
+
+fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, DeltaTiming) {
     let mut events: Vec<TrackEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
 
     let mut division: i16 = 0;
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
         Ok(smf) => {
-            /// The unit of time for delta timing. If the value is positive,
-            /// then it represents the units per beat. For example, +96 would
-            /// mean 96 ticks per beat. If the value is negative, delta times
-            /// are in SMPTE compatible units.
-            println!("Division Header: {}", smf.division);
+            info!("Division Header: {}", smf.division);
             division = smf.division;
             if division < 0 {
                 panic!("We don't know how to deal with negative Division Header values!  Failing.")
@@ -145,21 +154,21 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
         }
         Err(e) => match e {
             SMFError::InvalidSMFFile(s) => {
-                println!("{}", s);
+                error!("{}", s);
             }
             SMFError::Error(e) => {
-                println!("io: {}", e);
+                error!("io: {}", e);
             }
             SMFError::MidiError(e) => {
-                println!("Midi Error: {}", e);
+                error!("Midi Error: {}", e);
             }
             SMFError::MetaError(_) => {
-                println!("Meta Error");
+                error!("Meta Error");
             }
         },
     };
 
-    (events, division)
+    (events, DeltaTiming(division))
 }
 
 fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
@@ -186,7 +195,7 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                     // You can find fun and interesting things like Damper Pedal (sustain)
                     // Being turned on and off
                     // See http://www.onicos.com/staff/iz/formats/midi-cntl.html
-                    println!("How about this unknown track event: {:?}", te);
+                    warn!("How about this unknown track event: {:?}", te);
                 }
             }
             TrackEvent {
@@ -212,29 +221,32 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
 fn run(
     output_device: usize,
     notes: Vec<MidiEvent>,
-    division: i16,
+    division: DeltaTiming,
     midi_sender: channel::Sender<NoteEvent>,
-) -> Result<(), Box<Error>> {
+) -> Result<(), Box<dyn Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
-    let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
+    let port_number = &midi_out.ports()[output_device];
+    let mut conn_out = midi_out.connect(port_number, "led_midi_show")?;
 
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
-    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
+    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division.0 as f32) as u64;
 
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
         let mut play_note = |midi: MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
-                let u = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
-                println!("Update micros per tick: {}", u);
+                let u = (tempo_change.micros_per_qnote as f32 / division.0 as f32) as u64;
+                info!("Update micros per tick: {}", u);
                 micros_per_tick = u;
             }
             MidiEvent::Note(note) => {
                 sleep(Duration::from_micros(note.vtime * micros_per_tick));
 
-                midi_sender.send(note.clone());
+                if let Err(e) = midi_sender.send(note.clone()) {
+                    error!("send err {:?}", e)
+                }
 
                 let _ = match note.channel_event {
                     ChannelEvent::ChannelOn(c) => conn_out.send(&[c, note.note, note.velocity]),
