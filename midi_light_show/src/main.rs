@@ -226,7 +226,7 @@ fn run(
 ) -> Result<(), Box<dyn Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
-    let port_number = &midi_out.ports()[output_device - 1];
+    let port_number = &midi_out.ports()[output_device];
     let mut conn_out = midi_out.connect(port_number, "led_midi_show")?;
 
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
