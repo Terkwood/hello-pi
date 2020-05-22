@@ -127,13 +127,16 @@ impl MidiTimeInfo {
     }
 }
 
-fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
+// The unit of time for delta timing. If the value is positive,
+// then it represents the units per beat. For example, +96 would
+// mean 96 ticks per beat. If the value is negative, delta times
+// are in SMPTE compatible units.
+#[derive(Copy, Clone)]
+pub struct DeltaTiming(pub i16);
+
+fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, DeltaTiming) {
     let mut events: Vec<TrackEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
 
-    // The unit of time for delta timing. If the value is positive,
-    // then it represents the units per beat. For example, +96 would
-    // mean 96 ticks per beat. If the value is negative, delta times
-    // are in SMPTE compatible units.
     let mut division: i16 = 0;
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
@@ -165,7 +168,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
         },
     };
 
-    (events, division)
+    (events, DeltaTiming(division))
 }
 
 fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
@@ -218,7 +221,7 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
 fn run(
     output_device: usize,
     notes: Vec<MidiEvent>,
-    division: i16,
+    division: DeltaTiming,
     midi_sender: channel::Sender<NoteEvent>,
 ) -> Result<(), Box<dyn Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
@@ -227,14 +230,14 @@ fn run(
     let mut conn_out = midi_out.connect(port_number, "led_midi_show")?;
 
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
-    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
+    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division.0 as f32) as u64;
 
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
         let mut play_note = |midi: MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
-                let u = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
+                let u = (tempo_change.micros_per_qnote as f32 / division.0 as f32) as u64;
                 info!("Update micros per tick: {}", u);
                 micros_per_tick = u;
             }
