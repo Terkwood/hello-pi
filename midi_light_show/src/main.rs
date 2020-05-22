@@ -104,7 +104,7 @@ fn main() {
 
     match run(*output_device, events, time_info, midi_s) {
         Ok(_) => (),
-        Err(err) => println!("Error: {}", err.description()),
+        Err(err) => println!("Error: {}", err.to_string()),
     }
 }
 
@@ -130,14 +130,14 @@ impl MidiTimeInfo {
 fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
     let mut events: Vec<TrackEvent> = Vec::with_capacity(DEFAULT_VEC_CAPACITY);
 
+    // The unit of time for delta timing. If the value is positive,
+    // then it represents the units per beat. For example, +96 would
+    // mean 96 ticks per beat. If the value is negative, delta times
+    // are in SMPTE compatible units.
     let mut division: i16 = 0;
 
     match SMF::from_file(&Path::new(&pathstr[..])) {
         Ok(smf) => {
-            /// The unit of time for delta timing. If the value is positive,
-            /// then it represents the units per beat. For example, +96 would
-            /// mean 96 ticks per beat. If the value is negative, delta times
-            /// are in SMPTE compatible units.
             info!("Division Header: {}", smf.division);
             division = smf.division;
             if division < 0 {
@@ -220,10 +220,11 @@ fn run(
     notes: Vec<MidiEvent>,
     division: i16,
     midi_sender: channel::Sender<NoteEvent>,
-) -> Result<(), Box<Error>> {
+) -> Result<(), Box<dyn Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
 
-    let mut conn_out = midi_out.connect(output_device, "led_midi_show")?;
+    let port_number = &midi_out.ports()[output_device - 1];
+    let mut conn_out = midi_out.connect(port_number, "led_midi_show")?;
 
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
     let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division as f32) as u64;
@@ -240,7 +241,9 @@ fn run(
             MidiEvent::Note(note) => {
                 sleep(Duration::from_micros(note.vtime * micros_per_tick));
 
-                midi_sender.send(note.clone());
+                if let Err(e) = midi_sender.send(note.clone()) {
+                    error!("send err {:?}", e)
+                }
 
                 let _ = match note.channel_event {
                     ChannelEvent::ChannelOn(c) => conn_out.send(&[c, note.note, note.velocity]),

@@ -3,6 +3,7 @@ extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
+use log::error;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
 use ChannelEvent;
@@ -35,8 +36,8 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let gpio = &wiringpi::setup_gpio();
 
-    let led_pin_outs: Vec<Box<MusicPin>> = {
-        let mut lpos: Vec<Box<MusicPin>> = Vec::new();
+    let led_pin_outs: Vec<Box<dyn MusicPin>> = {
+        let mut lpos: Vec<Box<dyn MusicPin>> = Vec::new();
         for &p in pins {
             lpos.push(MusicPin::new(use_pwm, gpio, p))
         }
@@ -106,6 +107,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                     Occupied(_entry) => (),
                 }
             }
+            &Err(e) => error!("err {}", e),
         }
     }
 }
@@ -160,12 +162,12 @@ trait MusicPin {
 
 /// This constructor will generate the appropriate type
 /// of pin based on whether you want PWM or not
-impl MusicPin {
+impl dyn MusicPin {
     fn new(
         pwm: bool,
         gpio: &wiringpi::WiringPi<wiringpi::pin::Gpio>,
         pin_num: u16,
-    ) -> Box<MusicPin> {
+    ) -> Box<dyn MusicPin> {
         if pwm {
             Box::new(SoftPwmMusicPin::new(gpio, pin_num))
         } else {
