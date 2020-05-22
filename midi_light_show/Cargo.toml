@@ -1,7 +1,7 @@
 [package]
 name = "midi_light_show"
 version = "0.2.2"
-authors = ["Terkwood <<>>"]
+authors = ["Terkwood <38859656+Terkwood@users.noreply.github.com>"]
 
 [dependencies]
 config = "0.10.1"
