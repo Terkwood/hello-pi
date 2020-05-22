@@ -32,7 +32,7 @@ We recommend downloading the JS Bach Goldberg Variations from https://www.opengo
 You need to start `fluidsynth` as a server, allow MIDI input, connect it to your ALSA sound device on the Pi, and then correctly select the device number when starting this application:
 
 ```sh
-sudo apt-get install fluidsynth fluid-soundfont-gm
+sudo apt-get install fluidsynth fluid-soundfont-gm libasound2-dev
 
 fluidsynth -a alsa -i /usr/share/sounds/sf2/FluidR3_GM.sf2 --server
 
