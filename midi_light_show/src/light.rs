@@ -3,14 +3,14 @@ extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
+use crate::ChannelEvent;
+use crate::ChannelEvent::{ChannelOff, ChannelOn};
+use crate::NoteEvent;
+use crate::CHANNEL_OFF_FIRST;
+use crate::CHANNEL_ON_FIRST;
 use log::error;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::HashMap;
-use ChannelEvent;
-use ChannelEvent::{ChannelOff, ChannelOn};
-use NoteEvent;
-use CHANNEL_OFF_FIRST;
-use CHANNEL_ON_FIRST;
 
 pub fn run(output_r: channel::Receiver<NoteEvent>) {
     let mut settings = config::Config::default();
