@@ -2,6 +2,7 @@
 name = "midi_light_show"
 version = "0.2.2"
 authors = ["Terkwood <38859656+Terkwood@users.noreply.github.com>"]
+edition = "2018"
 
 [dependencies]
 config = "0.10.1"
