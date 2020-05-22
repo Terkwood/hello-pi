@@ -8,6 +8,8 @@ config = "0.10.1"
 crossbeam-channel = "0.4.2"
 midir = "0.6.0"
 wiringpi = "0.2.4"
+log = "0.4.8"
+env_logger = "0.7.1"
 
 [dependencies.rimd]
 git = "https://github.com/RustAudio/rimd.git"

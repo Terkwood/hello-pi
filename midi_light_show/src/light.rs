@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 extern crate config;
 extern crate crossbeam_channel as channel;
 extern crate wiringpi;
@@ -15,8 +14,9 @@ use CHANNEL_ON_FIRST;
 pub fn run(output_r: channel::Receiver<NoteEvent>) {
     let mut settings = config::Config::default();
     settings
-            // Add in `./Settings.toml`
-            .merge(config::File::with_name("Settings")).unwrap();
+        // Add in `./Settings.toml`
+        .merge(config::File::with_name("Settings"))
+        .expect("settings");
 
     let layout_selection = settings.get::<String>("layout").unwrap();
     let pins = &settings
@@ -58,14 +58,14 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
         let rc = r.clone();
         let maybe_channel_note = rc.map(|mne| ChannelNote::new(mne.channel_event, mne.note));
         match r {
-            &Some(NoteEvent {
+            &Ok(NoteEvent {
                 channel_event: ChannelOff(_c),
                 time: _,
                 vtime: _,
                 note,
                 velocity: _,
             })
-            | &Some(NoteEvent {
+            | &Ok(NoteEvent {
                 channel_event: ChannelOn(_c),
                 time: _,
                 vtime: _,
@@ -86,7 +86,7 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                     led_to_cn.remove(&u);
                 }
             }
-            &Some(NoteEvent {
+            &Ok(NoteEvent {
                 channel_event: ChannelOn(c),
                 time: _,
                 vtime: _,
@@ -106,7 +106,6 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                     Occupied(_entry) => (),
                 }
             }
-            None => {}
         }
     }
 }

@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
 extern crate crossbeam_channel as channel;
+extern crate env_logger;
+extern crate log;
 extern crate midir;
 extern crate rimd;
 
+use log::{error, info, warn};
 use midir::MidiOutput;
 use rimd::{SMFError, TrackEvent, SMF};
 use std::env;
@@ -65,6 +68,7 @@ pub enum MidiEvent {
 }
 
 fn main() {
+    env_logger::init();
     let mut args: env::Args = env::args();
     args.next();
     let pathstr = &match args.next() {
@@ -134,7 +138,7 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
             /// then it represents the units per beat. For example, +96 would
             /// mean 96 ticks per beat. If the value is negative, delta times
             /// are in SMPTE compatible units.
-            println!("Division Header: {}", smf.division);
+            info!("Division Header: {}", smf.division);
             division = smf.division;
             if division < 0 {
                 panic!("We don't know how to deal with negative Division Header values!  Failing.")
@@ -147,16 +151,16 @@ fn load_midi_file(pathstr: &str) -> (Vec<TrackEvent>, i16) {
         }
         Err(e) => match e {
             SMFError::InvalidSMFFile(s) => {
-                println!("{}", s);
+                error!("{}", s);
             }
             SMFError::Error(e) => {
-                println!("io: {}", e);
+                error!("io: {}", e);
             }
             SMFError::MidiError(e) => {
-                println!("Midi Error: {}", e);
+                error!("Midi Error: {}", e);
             }
             SMFError::MetaError(_) => {
-                println!("Meta Error");
+                error!("Meta Error");
             }
         },
     };
@@ -188,7 +192,7 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                     // You can find fun and interesting things like Damper Pedal (sustain)
                     // Being turned on and off
                     // See http://www.onicos.com/staff/iz/formats/midi-cntl.html
-                    println!("How about this unknown track event: {:?}", te);
+                    warn!("How about this unknown track event: {:?}", te);
                 }
             }
             TrackEvent {
@@ -230,7 +234,7 @@ fn run(
         let mut play_note = |midi: MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
                 let u = (tempo_change.micros_per_qnote as f32 / division as f32) as u64;
-                println!("Update micros per tick: {}", u);
+                info!("Update micros per tick: {}", u);
                 micros_per_tick = u;
             }
             MidiEvent::Note(note) => {
