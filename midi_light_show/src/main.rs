@@ -8,6 +8,7 @@ extern crate rimd;
 use log::{error, info, warn};
 use midir::MidiOutput;
 use rimd::{SMFError, TrackEvent, SMF};
+use std::collections::HashSet;
 use std::env;
 use std::error::Error;
 use std::path::Path;
@@ -18,7 +19,7 @@ mod light;
 
 const DEFAULT_VEC_CAPACITY: usize = 133000;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Copy)]
 pub enum ChannelEvent {
     ChannelOn(u8),
     ChannelOff(u8),
@@ -45,7 +46,7 @@ impl ChannelEvent {
 
 /// These are read from the MIDI file and
 /// will be used to produce audio.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Copy)]
 pub struct NoteEvent {
     channel_event: ChannelEvent,
     time: u64,
@@ -54,14 +55,14 @@ pub struct NoteEvent {
     velocity: u8,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct TempoEvent {
     time: u64,
     vtime: u64,
     micros_per_qnote: u64,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum MidiEvent {
     Note(NoteEvent),
     Tempo(TempoEvent),
@@ -297,10 +298,19 @@ fn run(
         };
 
         let mut pedal_state = PedalState::Off;
-        let mut sustained = vec![];
+        let mut sustained = HashSet::new();
 
         for n in notes {
             match (&n, pedal_state) {
+                (MidiEvent::SustainPedal(SustainPedalEvent(PedalState::Off)), PedalState::On) => {
+                    for s in sustained.drain() {
+                        play_note(&MidiEvent::Note(s));
+                    }
+                    pedal_state = PedalState::Off;
+                }
+                (MidiEvent::SustainPedal(SustainPedalEvent(PedalState::On)), PedalState::Off) => {
+                    pedal_state = PedalState::On;
+                }
                 (
                     MidiEvent::Note(NoteEvent {
                         channel_event: ChannelEvent::ChannelOff(c),
@@ -310,8 +320,16 @@ fn run(
                         velocity,
                     }),
                     PedalState::On,
-                ) => sustained.push(*c),
-                _ => play_note(&n),
+                ) => {
+                    sustained.insert(NoteEvent {
+                        channel_event: ChannelEvent::ChannelOff(*c),
+                        time: *time,
+                        vtime: *vtime,
+                        note: *note,
+                        velocity: *velocity,
+                    });
+                }
+                (n, _p) => play_note(&n),
             }
         }
     }
