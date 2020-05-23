@@ -1,6 +1,6 @@
 import { h, Component } from "preact";
 import "98.css";
-//import { useState } from "preact/hooks";
+import { useState } from "preact/hooks";
 import { Router } from "preact-router";
 
 import Header from "./header";
@@ -9,12 +9,8 @@ import Header from "./header";
 import Home from "../routes/home";
 import Profile from "../routes/profile";
 
-//const [count, setCount] = useState(0);
-const count = 0;
-const setCount = (_no) => {
-  return;
-};
 const Proto = () => {
+  const [count, setCount] = useState(0);
   return (<div
     style={{
       height: "100vh",
