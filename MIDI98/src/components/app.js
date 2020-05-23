@@ -1,4 +1,5 @@
 import { h, Component } from "preact";
+import "98.css";
 //import { useState } from "preact/hooks";
 import { Router } from "preact-router";
 
