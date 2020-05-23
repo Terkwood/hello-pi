@@ -65,10 +65,32 @@ pub struct TempoEvent {
 pub enum MidiEvent {
     Note(NoteEvent),
     Tempo(TempoEvent),
+    SustainPedal(SustainPedalEvent),
 }
 
+/// https://cecm.indiana.edu/etext/MIDI/chapter3_MIDI5.shtml
+///
+/// > In general, controller #'s 0-63 are reserved for continous-type
+/// > data, such as volume, mod wheel, etc., controllers 64-121 have
+/// > been reserved for switch-type controllers (i.e. on-off, up-down),
+/// > such as the sustain pedal. Older conventions of switch values,
+/// > ssuch as any data value over 0 = 'ON,' or
+/// > recognizing only 0 = 'OFF' and 127 = 'ON' and ignoring the rest,
+/// > have been replaced by the convention 0-63 = 'ON' and
+/// > 64-127 = 'OFF.'
+#[derive(Clone, Copy, Debug)]
+pub struct SustainPedalEvent(pub PedalState);
+
+#[derive(Clone, Copy, Debug)]
+pub enum PedalState {
+    On,
+    Off,
+}
+
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 fn main() {
     env_logger::init();
+    info!("{}", VERSION);
     let mut args: env::Args = env::args();
     args.next();
     let pathstr = &match args.next() {
@@ -253,6 +275,7 @@ fn run(
                     ChannelEvent::ChannelOff(c) => conn_out.send(&[c, note.note, note.velocity]),
                 };
             }
+            MidiEvent::SustainPedal(p) => warn!("Sustain pedal: {:?}", p),
         };
 
         for n in notes {
