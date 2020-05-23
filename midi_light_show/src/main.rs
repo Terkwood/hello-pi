@@ -97,7 +97,7 @@ impl SustainPedalEvent {
         }
     }
 }
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PedalState {
     On,
     Off,
@@ -230,7 +230,7 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                     };
                     events.push(MidiEvent::Note(e));
                 } else if let Some(pedal_event) = SustainPedalEvent::new(&msg.data) {
-                    warn!("🍞🍞🍞🍞 PEDAL EVENT {:?} 🍞🍞🍞🍞", pedal_event)
+                    events.push(MidiEvent::SustainPedal(pedal_event));
                 } else {
                     // You can find fun and interesting things like Damper Pedal (sustain)
                     // Being turned on and off
@@ -275,7 +275,7 @@ fn run(
     println!("[ [   Show Starts Now   ] ]");
     {
         // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
-        let mut play_note = |midi: MidiEvent| match midi {
+        let mut play_note = |midi: &MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
                 let u = (tempo_change.micros_per_qnote as f32 / division.0 as f32) as u64;
                 info!("Update micros per tick: {}", u);
@@ -296,8 +296,23 @@ fn run(
             MidiEvent::SustainPedal(p) => warn!("Sustain pedal: {:?}", p),
         };
 
+        let mut pedal_state = PedalState::Off;
+        let mut sustained = vec![];
+
         for n in notes {
-            play_note(n)
+            match (&n, pedal_state) {
+                (
+                    MidiEvent::Note(NoteEvent {
+                        channel_event: ChannelEvent::ChannelOff(c),
+                        time,
+                        vtime,
+                        note,
+                        velocity,
+                    }),
+                    PedalState::On,
+                ) => sustained.push(*c),
+                _ => play_note(&n),
+            }
         }
     }
 
