@@ -80,7 +80,23 @@ pub enum MidiEvent {
 /// > 64-127 = 'OFF.'
 #[derive(Clone, Copy, Debug)]
 pub struct SustainPedalEvent(pub PedalState);
+const BREAD_CHANNEL: u8 = 0xb0;
+const PEDAL_CONTROLLER: u8 = 0x40;
 
+impl SustainPedalEvent {
+    pub fn new(data: &[u8]) -> Option<Self> {
+        match data {
+            &[BREAD_CHANNEL, PEDAL_CONTROLLER, v] => {
+                Some(SustainPedalEvent(if v < PEDAL_CONTROLLER {
+                    PedalState::Off
+                } else {
+                    PedalState::On
+                }))
+            }
+            _ => None,
+        }
+    }
+}
 #[derive(Clone, Copy, Debug)]
 pub enum PedalState {
     On,
@@ -213,6 +229,8 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                         velocity: msg.data[2],
                     };
                     events.push(MidiEvent::Note(e));
+                } else if let Some(pedal_event) = SustainPedalEvent::new(&msg.data) {
+                    warn!("🍞🍞🍞🍞 PEDAL EVENT {:?} 🍞🍞🍞🍞", pedal_event)
                 } else {
                     // You can find fun and interesting things like Damper Pedal (sustain)
                     // Being turned on and off
