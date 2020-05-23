@@ -4,7 +4,7 @@ extern crate crossbeam_channel as channel;
 extern crate wiringpi;
 
 use crate::ChannelEvent;
-use crate::ChannelEvent::{ChannelOff, ChannelOn};
+use crate::ChannelEvent::*;
 use crate::NoteEvent;
 use crate::CHANNEL_OFF_FIRST;
 use crate::CHANNEL_ON_FIRST;
@@ -93,6 +93,13 @@ pub fn run(output_r: channel::Receiver<NoteEvent>) {
                 vtime: _,
                 note,
                 velocity,
+            })
+            | &Ok(NoteEvent {
+                channel_event: SustainPedal(c),
+                time: _,
+                vtime: _,
+                note,
+                velocity,
             }) => {
                 let led = midi_note_to_led(note, num_leds);
 
@@ -126,6 +133,10 @@ impl ChannelNote {
             },
             ChannelOff(c) => ChannelNote {
                 channel: c - CHANNEL_OFF_FIRST,
+                note,
+            },
+            SustainPedal(p) => ChannelNote {
+                channel: p - CHANNEL_OFF_FIRST,
                 note,
             },
         }

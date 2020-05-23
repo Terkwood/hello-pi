@@ -22,6 +22,7 @@ const DEFAULT_VEC_CAPACITY: usize = 133000;
 pub enum ChannelEvent {
     ChannelOn(u8),
     ChannelOff(u8),
+    SustainPedal(u8),
 }
 
 // midi channel addresses
@@ -30,10 +31,13 @@ pub const CHANNEL_OFF_FIRST: u8 = 0x80;
 const CHANNEL_OFF_LAST: u8 = 0x8F;
 pub const CHANNEL_ON_FIRST: u8 = 0x90;
 const CHANNEL_ON_LAST: u8 = 0x9F;
+pub const SUSTAIN_PEDAL: u8 = 0x40;
 
 impl ChannelEvent {
     pub fn new(channel: u8) -> Option<ChannelEvent> {
-        if channel >= CHANNEL_OFF_FIRST && channel <= CHANNEL_OFF_LAST {
+        if channel == SUSTAIN_PEDAL {
+            Some(ChannelEvent::SustainPedal(channel))
+        } else if channel >= CHANNEL_OFF_FIRST && channel <= CHANNEL_OFF_LAST {
             Some(ChannelEvent::ChannelOff(channel))
         } else if channel >= CHANNEL_ON_FIRST && channel <= CHANNEL_ON_LAST {
             Some(ChannelEvent::ChannelOn(channel))
@@ -54,7 +58,7 @@ pub struct NoteEvent {
     velocity: u8,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy, Debug)]
 pub struct TempoEvent {
     time: u64,
     vtime: u64,
@@ -251,6 +255,7 @@ fn run(
                 let _ = match note.channel_event {
                     ChannelEvent::ChannelOn(c) => conn_out.send(&[c, note.note, note.velocity]),
                     ChannelEvent::ChannelOff(c) => conn_out.send(&[c, note.note, note.velocity]),
+                    ChannelEvent::SustainPedal(p) => conn_out.send(&[p, note.note, note.velocity]),
                 };
             }
         };
