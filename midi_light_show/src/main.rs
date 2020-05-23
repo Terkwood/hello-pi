@@ -71,8 +71,11 @@ pub enum MidiEvent {
     Tempo(TempoEvent),
 }
 
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 fn main() {
     env_logger::init();
+    info!("🔢 {}", VERSION);
+
     let mut args: env::Args = env::args();
     args.next();
     let pathstr = &match args.next() {
