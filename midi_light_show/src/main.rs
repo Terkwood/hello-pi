@@ -57,8 +57,8 @@ pub struct NoteEvent {
 
 #[derive(Clone, Copy)]
 pub struct TempoEvent {
-    time: u64,
-    vtime: u64,
+    _time: u64,
+    _vtime: u64,
     micros_per_qnote: u64,
 }
 
@@ -248,8 +248,8 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                         data,
                     }),
             } => events.push(MidiEvent::Tempo(TempoEvent {
-                time: time,
-                vtime: *vtime,
+                _time: time,
+                _vtime: *vtime,
                 micros_per_qnote: data_as_u64(&data),
             })),
             _ => (),
@@ -259,10 +259,13 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
     events
 }
 
+/// Process all of the MIDI events and send them to output_device
+/// Each note calls `thread::sleep` based on its `vtime` attribute
+/// and `delta_timing`
 fn run(
     output_device: usize,
-    notes: Vec<MidiEvent>,
-    division: DeltaTiming,
+    midi_events: Vec<MidiEvent>,
+    delta_timing: DeltaTiming,
     midi_sender: channel::Sender<NoteEvent>,
 ) -> Result<(), Box<dyn Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
@@ -271,14 +274,14 @@ fn run(
     let mut conn_out = midi_out.connect(port_number, "led_midi_show")?;
 
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
-    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division.0 as f32) as u64;
+    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / delta_timing.0 as f32) as u64;
 
     println!("[ [   Show Starts Now   ] ]");
     {
-        // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
-        let mut play_note = |midi: &MidiEvent| match midi {
+        // Define a new scope in which the closure `sleep_play` borrows conn_out, so it can be called easily
+        let mut sleep_play = |midi: &MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
-                let u = (tempo_change.micros_per_qnote as f32 / division.0 as f32) as u64;
+                let u = (tempo_change.micros_per_qnote as f32 / delta_timing.0 as f32) as u64;
                 info!("Update micros per tick: {}", u);
                 micros_per_tick = u;
             }
@@ -294,17 +297,17 @@ fn run(
                     ChannelEvent::ChannelOff(c) => conn_out.send(&[c, note.note, note.velocity]),
                 };
             }
-            MidiEvent::SustainPedal(p) => warn!("Sustain pedal: {:?}", p),
+            MidiEvent::SustainPedal(p) => info!("Sustain pedal: {:?}", p),
         };
 
         let mut pedal_state = PedalState::Off;
         let mut sustained = HashSet::new();
 
-        for n in notes {
+        for n in midi_events {
             match (&n, pedal_state) {
                 (MidiEvent::SustainPedal(SustainPedalEvent(PedalState::Off)), PedalState::On) => {
                     for s in sustained.drain() {
-                        play_note(&MidiEvent::Note(s));
+                        sleep_play(&MidiEvent::Note(s));
                     }
                     pedal_state = PedalState::Off;
                 }
@@ -329,7 +332,7 @@ fn run(
                         velocity: *velocity,
                     });
                 }
-                (n, _p) => play_note(&n),
+                (n, _p) => sleep_play(&n),
             }
         }
     }
