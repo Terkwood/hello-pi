@@ -30,6 +30,10 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
 
         lpos
     };
+    // clear
+    for p in led_pin_outs {
+        p.write(0);
+    }
 
     let mut secs: f32 = 0.0;
     let mut lit_pin: Option<u16> = None;
