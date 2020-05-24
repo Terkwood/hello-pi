@@ -1,8 +1,8 @@
 use wiringpi::pin::*;
 use wiringpi::WiringPi;
 
-pub fn note_to_led(c: u8, num_leds: usize) -> u16 {
-    ((60 - c as i8).modulo(num_leds as i8)) as u16
+pub fn note_to_led(c: i8, num_leds: usize) -> u16 {
+    c.modulo(num_leds as i8) as u16
 }
 ///
 /// Modulo that handles negative numbers, works the same as Python's `%`.
