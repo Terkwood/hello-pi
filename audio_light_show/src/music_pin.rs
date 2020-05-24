@@ -1,10 +1,9 @@
 use wiringpi::pin::*;
 use wiringpi::WiringPi;
 
-fn note_to_led(c: u8, num_leds: usize) -> usize {
-    ((60 - c as i8).modulo(num_leds as i8)) as usize
+pub fn note_to_led(c: u8, num_leds: usize) -> u16 {
+    ((60 - c as i8).modulo(num_leds as i8)) as u16
 }
-
 ///
 /// Modulo that handles negative numbers, works the same as Python's `%`.
 ///
@@ -25,16 +24,16 @@ macro_rules! modulo_signed_ext_impl {
 }
 modulo_signed_ext_impl! { i8 i16 i32 i64 }
 
-trait MusicPin {
+pub trait MusicPin {
     fn write(&self, velocity: i32);
 }
 
-struct DigitalMusicPin {
-    pin: OutputPin<Gpio>,
+pub struct DigitalMusicPin {
+    pub pin: OutputPin<Gpio>,
 }
 
 impl DigitalMusicPin {
-    fn new(gpio: &WiringPi<Gpio>, pin_num: u16) -> DigitalMusicPin {
+    pub fn new(gpio: &WiringPi<Gpio>, pin_num: u16) -> DigitalMusicPin {
         DigitalMusicPin {
             pin: gpio.output_pin(pin_num),
         }
