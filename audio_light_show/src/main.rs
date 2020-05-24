@@ -2,7 +2,7 @@ extern crate env_logger;
 extern crate log;
 extern crate wiringpi;
 
-mod freq_file;
+mod aubiopitch;
 mod music_pin;
 
 use log::info;
@@ -15,7 +15,7 @@ fn main() {
     env_logger::init();
     info!("{}", VERSION);
 
-    let time_freqs = freq_file::load(FILENAME).expect("load");
+    let time_freqs = aubiopitch::load_file(FILENAME).expect("load");
     for tf in time_freqs {
         log::info!("{:?}", tf);
     }
