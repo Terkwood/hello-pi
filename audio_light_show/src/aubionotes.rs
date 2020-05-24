@@ -30,7 +30,7 @@ where
 struct ParseErr;
 /// ignores single-value lines which indicate time
 fn parse(line: &str) -> Result<NoteTime, ParseErr> {
-    let spl: Vec<&str> = line.split(' ').collect();
+    let spl: Vec<&str> = line.split_whitespace().collect();
     if spl.len() < 3 {
         Err(ParseErr)
     } else {
