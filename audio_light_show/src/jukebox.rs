@@ -31,7 +31,7 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
         lpos
     };
     // clear
-    for p in led_pin_outs {
+    for p in &led_pin_outs {
         p.write(0);
     }
 
