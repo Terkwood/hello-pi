@@ -74,5 +74,7 @@ mod tests {
     #[test]
     fn test_freq_to_note() {
         assert_eq!(A4_KEY_POSITION, freq_to_note(A4_TUNING_HZ));
+        assert_eq!(103, freq_to_note(5919.911)); // F#8
+        assert_eq!(26, freq_to_note(116.5409)); // Bb2
     }
 }
