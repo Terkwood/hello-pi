@@ -8,6 +8,6 @@ edition = "2018"
 
 [dependencies]
 rodio = "0.11.0"
-music_pin = { git = "https://github.com/Terkwood/hello-pi" }
 env_logger = "0.7.1"
 log = "0.4.8"
+wiringpi = "0.2.4"
