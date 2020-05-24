@@ -42,9 +42,10 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
         thread::sleep(Duration::from_secs_f32(time - secs));
         secs = time;
 
-        let pin_to_light = note_to_led(freq_to_note(freq) as i8, PINS.len());
+        let note = freq_to_note(freq);
+        let pin_to_light = note_to_led(note as i8, PINS.len());
 
-        info!("Pin to light: {}", pin_to_light);
+        info!("Freq {}, Note {}, Pin   {}", freq, note, pin_to_light);
         match lit_pin {
             Some(p) if p == pin_to_light => {}
             Some(old_pin) => {
