@@ -29,3 +29,19 @@ pub struct TimeFreq {
     pub time: f32,
     pub freq: f32,
 }
+
+const A4_TUNING_HZ: f32 = 440.0;
+const A4_KEY_POSITION: u8 = 49;
+/// See https://en.m.wikipedia.org/wiki/Piano_key_frequencies
+fn freq_to_note(freq: f32) -> u8 {
+    (39.86 * (freq / A4_TUNING_HZ).log10()) as u8 + A4_KEY_POSITION
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_freq_to_note() {
+        assert_eq!(A4_KEY_POSITION, freq_to_note(A4_TUNING_HZ));
+    }
+}
