@@ -7,7 +7,7 @@ use crate::TimeFreq;
 #[derive(Debug)]
 pub struct LoadErr;
 
-pub fn load_file<P>(filename: P) -> Result<Vec<TimeFreq>, LoadErr>
+pub fn parse_file<P>(filename: P) -> Result<Vec<TimeFreq>, LoadErr>
 where
     P: AsRef<Path>,
 {

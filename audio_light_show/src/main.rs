@@ -15,7 +15,7 @@ fn main() {
     env_logger::init();
     info!("{}", VERSION);
 
-    let time_freqs = aubiopitch::load_file(FILENAME).expect("load");
+    let time_freqs = aubiopitch::parse_file(FILENAME).expect("parsed file");
     for tf in time_freqs {
         log::info!("{:?}", tf);
     }
