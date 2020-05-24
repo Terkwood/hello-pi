@@ -20,9 +20,11 @@ fn main() {
     env_logger::init();
     info!("{}", VERSION);
 
-    let time_freqs = aubionotes::parse_file(FREQ_FILE).expect("parsed file");
+    let note_times = aubionotes::parse_file(FREQ_FILE).expect("parsed file");
 
-    thread::spawn(move || jukebox::blink_lights(time_freqs));
+    info!("num notes {}", note_times.len());
+
+    thread::spawn(move || jukebox::blink_lights(note_times));
 
     // start playing the mp3
     jukebox::play_music(MP3_FILE);
