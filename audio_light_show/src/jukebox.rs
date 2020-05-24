@@ -62,7 +62,7 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
 }
 
 const A4_TUNING_HZ: f32 = 440.0;
-const A4_KEY_POSITION: u16 = 49;
+const A4_KEY_POSITION: u16 = 48;
 /// See https://en.m.wikipedia.org/wiki/Piano_key_frequencies
 fn freq_to_note(freq: f32) -> u16 {
     (39.86 * (freq / A4_TUNING_HZ).log10()) as u16 + A4_KEY_POSITION
