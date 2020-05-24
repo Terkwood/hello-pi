@@ -1,5 +1,6 @@
 use crate::music_pin::*;
 use crate::TimeFreq;
+use log::info;
 
 use std::io::BufReader;
 use std::thread;
@@ -43,6 +44,7 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
 
         let pin_to_light = note_to_led(freq_to_note(freq), PINS.len());
 
+        info!("Pin to light: {}", pin_to_light);
         match lit_pin {
             Some(p) if p == pin_to_light => {}
             Some(old_pin) => {
