@@ -1,5 +1,5 @@
 use crate::music_pin::*;
-use crate::TimeFreq;
+use crate::NoteTime;
 use log::info;
 
 use std::io::BufReader;
@@ -19,7 +19,7 @@ const PINS: &[u16] = &[
     2, 3, 4, 17, 25, 8, 27, 22, 10, 9, 11, 19, 16, 20, 26, 21, 14, 15, 18, 23, 7, 5, 6, 13,
 ];
 const LED_ON: i32 = 255;
-pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
+pub fn blink_lights(time_freqs: Vec<NoteTime>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let gpio = &wiringpi::setup_gpio();
 
@@ -37,55 +37,22 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
     }
 
     let mut secs: f32 = 0.0;
-    let mut lit_pin: Option<u16> = None;
-    for TimeFreq { time, freq } in time_freqs {
-        thread::sleep(Duration::from_secs_f32(time - secs));
-        secs = time;
+    for NoteTime {
+        note,
+        start_secs,
+        stop_secs,
+    } in time_freqs
+    {
+        thread::sleep(Duration::from_secs_f32(start_secs - secs));
+        secs = start_secs;
 
-        let note = freq_to_note(freq);
-        let pin_to_light = note_to_led(note as i8, PINS.len());
+        let pin = note_to_led(note as i8, PINS.len());
 
-        info!("Freq {}, Note {}, Pin   {}", freq, note, pin_to_light);
-        match lit_pin {
-            Some(p) if p == pin_to_light => {}
-            Some(old_pin) => {
-                &led_pin_outs[old_pin as usize].write(0);
-                &led_pin_outs[pin_to_light as usize].write(LED_ON);
-                lit_pin = Some(pin_to_light);
-            }
-            None => {
-                &led_pin_outs[pin_to_light as usize].write(LED_ON);
-                lit_pin = Some(pin_to_light);
-            }
-        }
-    }
-}
+        info!("  Note {}, Pin   {}", note, pin);
 
-const A4_TUNING_HZ: f32 = 440.0;
-const A4_KEY_POSITION: u16 = 68; // 48
-/// See https://en.m.wikipedia.org/wiki/Piano_key_frequencies
-fn freq_to_note(freq: f32) -> u16 {
-    (39.86 * freq.log10()) as u16 + A4_KEY_POSITION
-}
-
-fn a_freq_to_note(freq: f32) -> u16 {
-    (12.0 * (freq / A4_TUNING_HZ).log2()) as u16 + A4_KEY_POSITION
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_freq_to_note() {
-        assert_eq!(A4_KEY_POSITION, freq_to_note(A4_TUNING_HZ));
-        assert_eq!(102, freq_to_note(5919.911)); // F#8
-        assert_eq!(25, freq_to_note(116.5409)); // Bb2
-    }
-
-    #[test]
-    fn test_twos_freq_to_note() {
-        assert_eq!(A4_KEY_POSITION, freq_to_note(A4_TUNING_HZ));
-        assert_eq!(102, freq_to_note(5919.911)); // F#8
-        assert_eq!(25, freq_to_note(116.5409)); // Bb2
+        &led_pin_outs[pin as usize].write(LED_ON);
+        thread::sleep(Duration::from_secs_f32(stop_secs - secs));
+        secs = stop_secs;
+        &led_pin_outs[pin as usize].write(0);
     }
 }
