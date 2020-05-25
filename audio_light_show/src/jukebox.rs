@@ -1,5 +1,5 @@
 use crate::music_pin::*;
-use crate::TimeFreq;
+use crate::NoteTime;
 use log::info;
 
 use std::io::BufReader;
@@ -19,7 +19,7 @@ const PINS: &[u16] = &[
     2, 3, 4, 17, 25, 8, 27, 22, 10, 9, 11, 19, 16, 20, 26, 21, 14, 15, 18, 23, 7, 5, 6, 13,
 ];
 const LED_ON: i32 = 255;
-pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
+pub fn blink_lights(time_freqs: Vec<NoteTime>) {
     // Setup wiringPi in GPIO mode (with original BCM numbering order)
     let gpio = &wiringpi::setup_gpio();
 
@@ -37,41 +37,22 @@ pub fn blink_lights(time_freqs: Vec<TimeFreq>) {
     }
 
     let mut secs: f32 = 0.0;
-    let mut lit_pin: Option<u16> = None;
-    for TimeFreq { time, freq } in time_freqs {
-        thread::sleep(Duration::from_secs_f32(time - secs));
-        secs = time;
+    for NoteTime {
+        note,
+        start_secs,
+        stop_secs,
+    } in time_freqs
+    {
+        thread::sleep(Duration::from_secs_f32(start_secs - secs));
+        secs = start_secs;
 
-        let pin_to_light = note_to_led(freq_to_note(freq), PINS.len());
+        let pin = note_to_led(note as i8, PINS.len());
 
-        info!("Pin to light: {}", pin_to_light);
-        match lit_pin {
-            Some(p) if p == pin_to_light => {}
-            Some(old_pin) => {
-                &led_pin_outs[old_pin as usize].write(0);
-                &led_pin_outs[pin_to_light as usize].write(LED_ON);
-                lit_pin = Some(pin_to_light);
-            }
-            None => {
-                &led_pin_outs[pin_to_light as usize].write(LED_ON);
-                lit_pin = Some(pin_to_light);
-            }
-        }
-    }
-}
+        info!("  Note {}, Pin   {}", note, pin);
 
-const A4_TUNING_HZ: f32 = 440.0;
-const A4_KEY_POSITION: u8 = 49;
-/// See https://en.m.wikipedia.org/wiki/Piano_key_frequencies
-fn freq_to_note(freq: f32) -> u8 {
-    (39.86 * (freq / A4_TUNING_HZ).log10()) as u8 + A4_KEY_POSITION
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_freq_to_note() {
-        assert_eq!(A4_KEY_POSITION, freq_to_note(A4_TUNING_HZ));
+        &led_pin_outs[pin as usize].write(LED_ON);
+        thread::sleep(Duration::from_secs_f32(stop_secs - secs));
+        secs = stop_secs;
+        &led_pin_outs[pin as usize].write(0);
     }
 }
