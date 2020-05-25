@@ -3,7 +3,6 @@ extern crate log;
 extern crate rodio;
 extern crate wiringpi;
 
-//mod aubiopitch;
 mod aubionotes;
 mod jukebox;
 mod music_pin;
@@ -20,7 +19,7 @@ fn main() {
     env_logger::init();
     info!("{}", VERSION);
 
-    let note_times = aubionotes::parse_file(FREQ_FILE).expect("parsed file");
+    let note_times = aubionotes::process_audio_file(MP3_FILE).expect("parsed file");
 
     info!("num notes {}", note_times.len());
 

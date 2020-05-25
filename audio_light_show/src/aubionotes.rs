@@ -1,9 +1,35 @@
+use crate::NoteTime;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::process::Command;
 
-use crate::NoteTime;
+/// Invoke the `aubionotes` utility and process an MP3 / wav file,
+/// capture the output , then convert to NoteTimes that we can process
+/// in the jukebox.
+///
+/// You need to install aubio utilities in order for this to work!
+/// see https://packages.debian.org/search?searchon=sourcenames&keywords=aubio etc
+pub fn process_audio_file(audio_file_name: &str) -> Result<Vec<NoteTime>, ProcessErr> {
+    if let Ok(output) = Command::new("aubionotes").arg(audio_file_name).output() {
+        let mut out = vec![];
+        for line in output.stdout.lines() {
+            if let Ok(l) = line {
+                if let Ok(tf) = parse(&format!("{}", l)) {
+                    out.push(tf);
+                }
+            }
+        }
+        Ok(out)
+    } else {
+        Err(ProcessErr::FailedToExecute)
+    }
+}
 
+#[derive(Debug)]
+pub enum ProcessErr {
+    FailedToExecute,
+}
 #[derive(Debug)]
 pub struct LoadErr;
 
