@@ -48,8 +48,6 @@ pub fn blink_lights(time_freqs: Vec<NoteTime>) {
 
         let pin = note_to_led(note as i8, PINS.len());
 
-        info!("  Note {}, Pin   {}", note, pin);
-
         &led_pin_outs[pin as usize].write(LED_ON);
         thread::sleep(Duration::from_secs_f32(stop_secs - secs));
         secs = stop_secs;

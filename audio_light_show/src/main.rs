@@ -21,7 +21,10 @@ fn main() {
 
     let note_times = aubionotes::process_audio_file(MP3_FILE).expect("parsed file");
 
-    info!("num notes {}", note_times.len());
+    info!(
+        "Examination of the audio file revealed {} notes",
+        note_times.len()
+    );
 
     thread::spawn(move || jukebox::blink_lights(note_times));
 
