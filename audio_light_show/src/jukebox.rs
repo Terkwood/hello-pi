@@ -1,6 +1,5 @@
 use crate::music_pin::*;
 use crate::NoteTime;
-use log::info;
 
 use std::io::BufReader;
 use std::thread;
