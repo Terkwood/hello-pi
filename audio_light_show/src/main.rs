@@ -22,7 +22,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    let filename = &args[0];
+    let filename = &args[1];
 
     if fs::metadata(filename).is_err() {
         error!("Please specify a file that exists and is readable by your user");
