@@ -7,19 +7,29 @@ mod aubionotes;
 mod jukebox;
 mod music_pin;
 
-use log::info;
-use std::thread;
+use log::{error, info};
+use std::{env, fs, thread};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-const FREQ_FILE: &str = "/tmp/bread.txt";
-const MP3_FILE: &str = "/tmp/bread.mp3";
 
 fn main() {
     env_logger::init();
     info!("{}", VERSION);
 
-    let note_times = aubionotes::process_audio_file(MP3_FILE).expect("parsed file");
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 1 {
+        error!("Please specify an MP3 or WAV file as an argument");
+        std::process::exit(1);
+    }
+
+    let filename = &args[0];
+
+    if fs::metadata(filename).is_err() {
+        error!("Please specify a file that exists and is readable by your user");
+        std::process::exit(2);
+    }
+
+    let note_times = aubionotes::process_audio_file(&filename).expect("parsed file");
 
     info!(
         "Examination of the audio file revealed {} notes",
@@ -29,7 +39,7 @@ fn main() {
     thread::spawn(move || jukebox::blink_lights(note_times));
 
     // start playing the mp3
-    jukebox::play_music(MP3_FILE);
+    jukebox::play_music(&filename);
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
