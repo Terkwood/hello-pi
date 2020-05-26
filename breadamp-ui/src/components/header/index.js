@@ -3,7 +3,7 @@ import { Link } from "preact-router/match";
 
 const Header = () => (
   <header className="title-bar">
-    <div className="title-bar-text">Counter</div>
+    <div className="title-bar-text">BreadAmp 🍞</div>
     <nav>
       <div className="title-bar-controls">
         <Link href="/">
