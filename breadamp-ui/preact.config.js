@@ -1,0 +1,5 @@
+{
+  resolve: {
+    extensions: [".ts", ".js"];
+  }
+}
