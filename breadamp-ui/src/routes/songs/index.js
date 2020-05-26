@@ -29,15 +29,14 @@ export default class Songs extends Component {
 
   render({ user }, { time, count }) {
     return (
-      <div style={{ width: 300 }} className="window">
-        <h1>Songs</h1>
+      <div className="window-body">
+        <h4>Songs</h4>
         <p>This is a long list of songs.</p>
 
         <div>Current time: {new Date(time).toLocaleString()}</div>
 
         <p>
-          <button onClick={this.increment}>Click Me</button> Clicked {count}
-          {" "}
+          <button onClick={this.increment}>Click Me</button> Clicked {count}{" "}
           times.
         </p>
       </div>

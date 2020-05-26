@@ -19,7 +19,7 @@ export default class App extends Component {
 
   render() {
     return (
-      <div id="app">
+      <div id="app" style={{ width: 300 }} className="window">
         <Header />
         <Router onChange={this.handleRoute}>
           <Home path="/" />
