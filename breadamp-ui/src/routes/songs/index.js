@@ -1,4 +1,4 @@
-import { h, Component } from "preact";
+import { Component } from "preact";
 import "98.css";
 
 export default class Songs extends Component {
