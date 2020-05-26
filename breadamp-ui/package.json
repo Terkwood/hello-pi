@@ -29,6 +29,7 @@
     "sirv-cli": "^0.4.6"
   },
   "dependencies": {
+    "98.css": "^0.1.16",
     "preact": "^10.3.2",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1"
