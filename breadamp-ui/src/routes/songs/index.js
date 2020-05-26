@@ -1,7 +1,7 @@
 import { h, Component } from "preact";
 import style from "./style";
 
-export default class Profile extends Component {
+export default class Songs extends Component {
   state = {
     time: Date.now(),
     count: 10,
@@ -27,17 +27,17 @@ export default class Profile extends Component {
     clearInterval(this.timer);
   }
 
-  // Note: `user` comes from the URL, courtesy of our router
   render({ user }, { time, count }) {
     return (
       <div class={style.profile}>
-        <h1>Profile: {user}</h1>
-        <p>This is the user profile for a user named {user}.</p>
+        <h1>Songs</h1>
+        <p>This is a long list of songs.</p>
 
         <div>Current time: {new Date(time).toLocaleString()}</div>
 
         <p>
-          <button onClick={this.increment}>Click Me</button> Clicked {count}{" "}
+          <button onClick={this.increment}>Click Me</button> Clicked {count}
+          {" "}
           times.
         </p>
       </div>

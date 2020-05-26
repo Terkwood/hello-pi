@@ -5,15 +5,15 @@ import Header from "./header";
 
 // Code-splitting is automated for routes
 import Home from "../routes/home";
-import Profile from "../routes/profile";
+import Songs from "../routes/songs";
 
 export default class App extends Component {
   /** Gets fired when the route changes.
    *	@param {Object} event		"change" event from [preact-router](http://git.io/preact-router)
    *	@param {string} event.url	The newly routed URL
    */
-  handleRoute = (e) => {
-    this.currentUrl = e.url;
+  handleRoute = (event) => {
+    this.currentUrl = event.url;
   };
 
   render() {
@@ -22,8 +22,7 @@ export default class App extends Component {
         <Header />
         <Router onChange={this.handleRoute}>
           <Home path="/" />
-          <Profile path="/profile/" user="me" />
-          <Profile path="/profile/:user" />
+          <Songs path="/songs/" />
         </Router>
       </div>
     );
