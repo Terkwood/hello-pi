@@ -27,7 +27,7 @@ export default class Songs extends Component {
     clearInterval(this.timer);
   }
 
-  render({ user }, { time, count }) {
+  render({}, { time, count }) {
     return (
       <div className="window-body">
         <strong>Songs</strong>
