@@ -6,6 +6,7 @@ import Header from "./header";
 // Code-splitting is automated for routes
 import Home from "../routes/home";
 import Songs from "../routes/songs";
+import "98.css";
 
 export default class App extends Component {
   /** Gets fired when the route changes.

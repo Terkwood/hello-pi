@@ -1,5 +1,5 @@
 import { h, Component } from "preact";
-import style from "./style";
+import "98.css";
 
 export default class Songs extends Component {
   state = {
@@ -29,14 +29,15 @@ export default class Songs extends Component {
 
   render({ user }, { time, count }) {
     return (
-      <div class={style.profile}>
+      <div style={{ width: 300 }} className="window">
         <h1>Songs</h1>
         <p>This is a long list of songs.</p>
 
         <div>Current time: {new Date(time).toLocaleString()}</div>
 
         <p>
-          <button onClick={this.increment}>Click Me</button> Clicked {count}{" "}
+          <button onClick={this.increment}>Click Me</button> Clicked {count}
+          {" "}
           times.
         </p>
       </div>
