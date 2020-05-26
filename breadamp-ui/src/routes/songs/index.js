@@ -36,8 +36,7 @@ export default class Songs extends Component {
         <div>Current time: {new Date(time).toLocaleString()}</div>
 
         <p>
-          <button onClick={this.increment}>Click Me</button> Clicked {count}
-          {" "}
+          <button onClick={this.increment}>Click Me</button> Clicked {count}{" "}
           times.
         </p>
       </div>
