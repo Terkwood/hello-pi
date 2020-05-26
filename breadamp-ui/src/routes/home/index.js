@@ -2,14 +2,24 @@ import { useState } from "preact/hooks";
 import "98.css";
 
 const Home = () => {
-  const [count, setCount] = useState(0);
+  const [msg, setMsg] = useState("stopped");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const prevTrack = () => setMsg("prev");
+  const nextTrack = () => setMsg("next");
   return (
     <div className="window-body">
-      <p style={{ textAlign: "center" }}>Current count: {count}</p>
+      <p style={{ textAlign: "center" }}>{msg}</p>
       <div className="field-row" style={{ justifyContent: "center" }}>
-        <button onClick={() => setCount(count + 1)}>⏪</button>
-        <button onClick={() => setCount(count - 1)}>▶️</button>
-        <button onClick={() => setCount(0)}>⏩</button>
+        <button onClick={() => prevTrack()}>⏪</button>
+        <button
+          onClick={() => {
+            setIsPlaying(!isPlaying);
+            setMsg(!isPlaying ? "playing" : "stopped");
+          }}
+        >
+          {isPlaying ? "⏹️" : "▶️"}
+        </button>
+        <button onClick={() => nextTrack()}>⏩</button>
       </div>
     </div>
   );
