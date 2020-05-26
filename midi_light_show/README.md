@@ -34,7 +34,8 @@ You need to start `fluidsynth` as a server, allow MIDI input, connect it to your
 ```sh
 sudo apt-get install fluidsynth fluid-soundfont-gm libasound2-dev
 
-fluidsynth -a alsa -i /usr/share/sounds/sf2/FluidR3_GM.sf2 --server
+# -g flag is useful for boosting volume, try -g 2 if you need
+fluidsynth -a alsa -i /usr/share/sounds/sf2/FluidR3_GM.sf2 -g 1 --server
 
 aconnect -lio   #  and COUNT the number of MIDI related devices
 

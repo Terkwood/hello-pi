@@ -8,6 +8,7 @@ extern crate rimd;
 use log::{error, info, warn};
 use midir::MidiOutput;
 use rimd::{SMFError, TrackEvent, SMF};
+use std::collections::HashSet;
 use std::env;
 use std::error::Error;
 use std::path::Path;
@@ -18,7 +19,7 @@ mod light;
 
 const DEFAULT_VEC_CAPACITY: usize = 133000;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Copy)]
 pub enum ChannelEvent {
     ChannelOn(u8),
     ChannelOff(u8),
@@ -45,7 +46,7 @@ impl ChannelEvent {
 
 /// These are read from the MIDI file and
 /// will be used to produce audio.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Copy)]
 pub struct NoteEvent {
     channel_event: ChannelEvent,
     time: u64,
@@ -54,21 +55,59 @@ pub struct NoteEvent {
     velocity: u8,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct TempoEvent {
-    time: u64,
-    vtime: u64,
+    _time: u64,
+    _vtime: u64,
     micros_per_qnote: u64,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum MidiEvent {
     Note(NoteEvent),
     Tempo(TempoEvent),
+    SustainPedal(SustainPedalEvent),
 }
 
+/// https://cecm.indiana.edu/etext/MIDI/chapter3_MIDI5.shtml
+///
+/// > In general, controller #'s 0-63 are reserved for continous-type
+/// > data, such as volume, mod wheel, etc., controllers 64-121 have
+/// > been reserved for switch-type controllers (i.e. on-off, up-down),
+/// > such as the sustain pedal. Older conventions of switch values,
+/// > ssuch as any data value over 0 = 'ON,' or
+/// > recognizing only 0 = 'OFF' and 127 = 'ON' and ignoring the rest,
+/// > have been replaced by the convention 0-63 = 'ON' and
+/// > 64-127 = 'OFF.'
+#[derive(Clone, Copy, Debug)]
+pub struct SustainPedalEvent(pub PedalState);
+const BREAD_CHANNEL: u8 = 0xb0;
+const PEDAL_CONTROLLER: u8 = 0x40;
+
+impl SustainPedalEvent {
+    pub fn new(data: &[u8]) -> Option<Self> {
+        match data {
+            &[BREAD_CHANNEL, PEDAL_CONTROLLER, v] => {
+                Some(SustainPedalEvent(if v < PEDAL_CONTROLLER {
+                    PedalState::Off
+                } else {
+                    PedalState::On
+                }))
+            }
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PedalState {
+    On,
+    Off,
+}
+
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 fn main() {
     env_logger::init();
+    info!("{}", VERSION);
     let mut args: env::Args = env::args();
     args.next();
     let pathstr = &match args.next() {
@@ -191,6 +230,8 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                         velocity: msg.data[2],
                     };
                     events.push(MidiEvent::Note(e));
+                } else if let Some(pedal_event) = SustainPedalEvent::new(&msg.data) {
+                    events.push(MidiEvent::SustainPedal(pedal_event));
                 } else {
                     // You can find fun and interesting things like Damper Pedal (sustain)
                     // Being turned on and off
@@ -207,8 +248,8 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
                         data,
                     }),
             } => events.push(MidiEvent::Tempo(TempoEvent {
-                time: time,
-                vtime: *vtime,
+                _time: time,
+                _vtime: *vtime,
                 micros_per_qnote: data_as_u64(&data),
             })),
             _ => (),
@@ -218,10 +259,13 @@ fn transform_events(track_events: Vec<TrackEvent>) -> Vec<MidiEvent> {
     events
 }
 
+/// Process all of the MIDI events and send them to output_device
+/// Each note calls `thread::sleep` based on its `vtime` attribute
+/// and `delta_timing`
 fn run(
     output_device: usize,
-    notes: Vec<MidiEvent>,
-    division: DeltaTiming,
+    midi_events: Vec<MidiEvent>,
+    delta_timing: DeltaTiming,
     midi_sender: channel::Sender<NoteEvent>,
 ) -> Result<(), Box<dyn Error>> {
     let midi_out = MidiOutput::new("MIDI Magic Machine")?;
@@ -230,14 +274,14 @@ fn run(
     let mut conn_out = midi_out.connect(port_number, "led_midi_show")?;
 
     const DEFAULT_MICROS_PER_QNOTE: u64 = 681817;
-    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / division.0 as f32) as u64;
+    let mut micros_per_tick = (DEFAULT_MICROS_PER_QNOTE as f32 / delta_timing.0 as f32) as u64;
 
     println!("[ [   Show Starts Now   ] ]");
     {
-        // Define a new scope in which the closure `play_note` borrows conn_out, so it can be called easily
-        let mut play_note = |midi: MidiEvent| match midi {
+        // Define a new scope in which the closure `sleep_play` borrows conn_out, so it can be called easily
+        let mut sleep_play = |midi: &MidiEvent| match midi {
             MidiEvent::Tempo(tempo_change) => {
-                let u = (tempo_change.micros_per_qnote as f32 / division.0 as f32) as u64;
+                let u = (tempo_change.micros_per_qnote as f32 / delta_timing.0 as f32) as u64;
                 info!("Update micros per tick: {}", u);
                 micros_per_tick = u;
             }
@@ -253,10 +297,43 @@ fn run(
                     ChannelEvent::ChannelOff(c) => conn_out.send(&[c, note.note, note.velocity]),
                 };
             }
+            MidiEvent::SustainPedal(p) => info!("Sustain pedal: {:?}", p),
         };
 
-        for n in notes {
-            play_note(n)
+        let mut pedal_state = PedalState::Off;
+        let mut sustained = HashSet::new();
+
+        for n in midi_events {
+            match (&n, pedal_state) {
+                (MidiEvent::SustainPedal(SustainPedalEvent(PedalState::Off)), PedalState::On) => {
+                    for s in sustained.drain() {
+                        sleep_play(&MidiEvent::Note(s));
+                    }
+                    pedal_state = PedalState::Off;
+                }
+                (MidiEvent::SustainPedal(SustainPedalEvent(PedalState::On)), PedalState::Off) => {
+                    pedal_state = PedalState::On;
+                }
+                (
+                    MidiEvent::Note(NoteEvent {
+                        channel_event: ChannelEvent::ChannelOff(c),
+                        time,
+                        vtime,
+                        note,
+                        velocity,
+                    }),
+                    PedalState::On,
+                ) => {
+                    sustained.insert(NoteEvent {
+                        channel_event: ChannelEvent::ChannelOff(*c),
+                        time: *time,
+                        vtime: *vtime,
+                        note: *note,
+                        velocity: *velocity,
+                    });
+                }
+                (n, _p) => sleep_play(&n),
+            }
         }
     }
 
