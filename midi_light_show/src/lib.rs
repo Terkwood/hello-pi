@@ -5,6 +5,8 @@ extern crate log;
 extern crate midir;
 extern crate rimd;
 
+mod controls;
+mod song;
 pub mod light;
 
 use log::{error, info, warn};
