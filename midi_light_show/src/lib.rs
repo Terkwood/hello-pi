@@ -13,6 +13,7 @@ use log::{error, info, warn};
 use rimd::{SMFError, TrackEvent, SMF};
 use std::path::Path;
 
+pub const DEFAULT_OUTPUT_DEVICE: usize = 1;
 pub const DEFAULT_VEC_CAPACITY: usize = 133000;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Copy)]
@@ -225,3 +226,23 @@ fn data_as_u64(data: &Vec<u8>) -> u64 {
     }
     res
 }
+
+///
+/// Modulo that handles negative numbers, works the same as Python's `%`.
+///
+/// eg: `(a + b).modulo(c)`
+/// from https://stackoverflow.com/questions/31210357/is-there-a-modulus-not-remainder-function-operation
+pub trait ModuloSignedExt {
+    fn modulo(&self, n: Self) -> Self;
+}
+macro_rules! modulo_signed_ext_impl {
+    ($($t:ty)*) => ($(
+        impl ModuloSignedExt for $t {
+            #[inline]
+            fn modulo(&self, n: Self) -> Self {
+                (self % n + n) % n
+            }
+        }
+    )*)
+}
+modulo_signed_ext_impl! { i8 i16 i32 i64 }
