@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 extern crate midi_light_show;
 
-use midi_light_show::*;
+use midi_light_show::controls::*;
 
-use crossbeam_channel as channel;
 use log::info;
 use std::env;
 
@@ -19,7 +18,7 @@ fn main() {
     }[..];
 
     const DEFAULT_OUTPUT_DEVICE: usize = 1;
-    let output_device: &usize = &match args.next() {
+    let output_device: usize = match args.next() {
         Some(n) => {
             println!("User requested output device {}", n);
             str::parse(&n)
@@ -34,18 +33,12 @@ fn main() {
         }
     };
 
-    let (track_events, time_info) = load_midi_file(pathstr);
+    let mut controls = NaiveMidiList {
+        file_index: 0,
+        filenames: vec![pathstr.to_string()],
+        output_device,
+    };
 
-    let events = transform_events(track_events);
-
-    // Create a channel for emitting midi events,
-    // spawn a thread to handle the LED lights
-
-    let (midi_s, midi_r) = channel::bounded(5);
-    std::thread::spawn(move || light::run(midi_r));
-
-    match play_from_beginning(*output_device, events, time_info, midi_s) {
-        Ok(_) => (),
-        Err(err) => println!("Error: {}", err.to_string()),
-    }
+    let status = controls.play().expect("play");
+    info!("Playing {}", status.name)
 }
