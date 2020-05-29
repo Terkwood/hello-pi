@@ -7,9 +7,7 @@
     "build": "preact build",
     "serve": "sirv build --cors --single",
     "dev": "preact watch",
-    "lint": "eslint src",
-    "test": "tsc && mocha localTsOut/test",
-    "test:ts-node": "mocha -r ts-node/register -r test/setup.ts --extension ts,tsx test"
+    "lint": "eslint src"
   },
   "eslintConfig": {
     "extends": "preact",
@@ -18,22 +16,12 @@
     ]
   },
   "devDependencies": {
-    "@types/enzyme": "^3.10.3",
-    "@types/mocha": "^7.0.2",
-    "chai": "^4.2.0",
-    "enzyme": "^3.10.0",
-    "enzyme-adapter-preact-pure": "^2.0.0",
-    "eslint": "^6.0.1",
-    "eslint-config-preact": "^1.1.0",
     "identity-obj-proxy": "^3.0.0",
-    "jsdom": "^15.1.1",
-    "mocha": "^6.2.0",
     "preact": "^10.0.4",
     "preact-cli": "^3.0.0-rc.13",
     "preact-cli-plugin-typescript": "^0.2.2",
     "preact-render-spy": "^1.2.1",
     "sirv-cli": "^0.4.6",
-    "ts-node": "^8.4.1",
     "typescript": "^3.7.2"
   },
   "dependencies": {
