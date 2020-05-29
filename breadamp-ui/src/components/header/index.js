@@ -1,4 +1,4 @@
-import { h } from "preact";
+import * as preact from "preact";
 import { Link } from "preact-router/match";
 
 const Header = () => (

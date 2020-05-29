@@ -9,4 +9,4 @@ describe('Header', () => {
         const wrapper = mount(h(Header, {}));
         expect(wrapper.text()).to.include('🍞');
     });
-});[]
+});

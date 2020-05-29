@@ -1,14 +1,14 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
+    "target": "es2018",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
     "jsxFactory": "h",
     "allowJs": true,
     "outDir": "localTsOut",
-  },
-  "include": ["**/*.*"]
+    "esModuleInterop": true
+  }
 }
