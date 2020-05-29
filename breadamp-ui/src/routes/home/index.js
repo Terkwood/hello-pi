@@ -10,7 +10,11 @@ import "98.css";
 /// TODO TODO TODO
 const HOST = "http://192.168.1.100:3030";
 
-const post = async (command) => fetch(`${HOST}/${command}`);
+const post = async (command) =>
+  fetch(`${HOST}/${command}`, {
+    method: "POST",
+    mode: "no-cors",
+  });
 
 const Home = () => {
   const [msg, setMsg] = useState("stopped");
