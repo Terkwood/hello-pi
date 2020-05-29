@@ -3,3 +3,4 @@ node_modules
 /*.log
 /.vscode
 size-plugin.json
+localTsOut
