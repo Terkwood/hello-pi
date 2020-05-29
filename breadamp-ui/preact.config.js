@@ -1,4 +1,4 @@
-const preactCliTypeScript = require('preact-cli-plugin-typescript')
+const preactCliTypeScript = require("preact-cli-plugin-typescript");
 
 /**
  * Function that mutates original webpack config.
@@ -9,5 +9,5 @@ const preactCliTypeScript = require('preact-cli-plugin-typescript')
  * @param {WebpackConfigHelpers} helpers object with useful helpers when working with config.
  **/
 export default function (config, env, helpers) {
-  preactCliTypeScript(config)
+  preactCliTypeScript(config);
 }
