@@ -39,14 +39,14 @@ fluidsynth -a alsa -i /usr/share/sounds/sf2/FluidR3_GM.sf2 -g 1 --server
 
 aconnect -lio   #  and COUNT the number of MIDI related devices
 
-cargo run SOME_MIDI_FILE 1  # if fluidsynth is the only virtual midi device on your pi, it should have ID 1.  see above
+cargo run /path/to/file /path/to/file /path/to/file
 ```
 
-Most of the time, on Raspberry Pi, after enabling fluidsynth, you can omit the audio device ID:
+## Usage as a web server
 
-```sh
-cargo run SOME_MIDI_FILE
-```
+The project is now intended (since v0.3.0 of midi_light_show) to
+be run as a web server and will accept PLAY/STOP/PREV/NEXT commands
+from the [BreadAmp UI 🍞](../breadamp-ui).
 
 ## Building on Raspbian
 
