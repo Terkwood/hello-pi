@@ -2,3 +2,4 @@ node_modules
 /build
 /*.log
 /.vscode
+size-plugin.json

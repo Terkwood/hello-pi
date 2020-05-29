@@ -1,13 +1,21 @@
 # breadamp-ui
 
+This is a user interface which can control the MIDI light show.
+
 ## CLI Commands
+
+Most importantly, for now:
+
+```sh
+# serve with hot reload at localhost:8080
+preact watch
+```
+
+Also:
 
 ```bash
 # install dependencies
 npm install
-
-# serve with hot reload at localhost:8080
-preact watch
 
 # build for production with minification
 npm run build
