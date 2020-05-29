@@ -153,7 +153,7 @@ impl Controls for MsgPassingControls {
     }
 }
 
-fn pppplay(
+fn load_transform_play(
     output_device: usize,
     pathstr: &str,
     notes_in: channel::Sender<NoteEvent>,
@@ -201,7 +201,7 @@ fn midi_play_loop(
                             let ss = s.clone();
                             let (ai, ao) = bounded(BOUNDED_SIZE);
                             abort_in = ai;
-                            spawn(move|| pppplay(output_device, &ss, nn,  ao));
+                            spawn(move|| load_transform_play(output_device, &ss, nn,  ao));
                             status = Some(SongStatus{name: s, is_playing: true , play_time: PlayTime::default()});
                         }
                     },
@@ -225,7 +225,7 @@ fn midi_play_loop(
                             let ss = song.clone();
                             let (ai, ao) = bounded(BOUNDED_SIZE);
                             abort_in = ai;
-                            spawn(move|| pppplay(output_device, &ss, nn,  ao));
+                            spawn(move|| load_transform_play(output_device, &ss, nn,  ao));
                         }
                     }
                     Err(e) => error!("error on recv {:?}",e)
