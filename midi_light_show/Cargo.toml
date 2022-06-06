@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 config = "0.10.1"
-crossbeam-channel = "0.4.2"
+crossbeam-channel = "0.4.4"
 midir = "0.6.0"
 wiringpi = "0.2.4"
 log = "0.4.8"
