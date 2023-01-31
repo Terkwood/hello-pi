@@ -11,7 +11,7 @@ midir = "0.6.0"
 wiringpi = "0.2.4"
 log = "0.4.8"
 env_logger = "0.7.1"
-warp = "0.2.3"
+warp = "0.3.3"
 tokio = { version = "0.2", features = ["macros"] }
 serde = "1.0.110"
 serde_derive = "1.0.110"
